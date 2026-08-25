@@ -1,0 +1,66 @@
+#include "strategies/WeightedAverageStrategy.h"
+
+#include <cmath>
+#include <stdexcept>
+
+#include "domain/Exam.h"
+
+WeightedAverageStrategy::WeightedAverageStrategy(
+    const std::map<int, double>& weights
+)
+    : weights(weights) {
+
+    if (weights.empty()) {
+        throw std::invalid_argument(
+            "Weights cannot be empty."
+        );
+    }
+
+    double totalWeight = 0.0;
+
+    for (const auto& [examId, weight] : weights) {
+        if (weight < 0.0 || weight > 1.0) {
+            throw std::invalid_argument(
+                "Each weight must be between 0 and 1."
+            );
+        }
+
+        totalWeight += weight;
+    }
+
+    if (std::abs(totalWeight - 1.0) > 0.0001) {
+        throw std::invalid_argument(
+            "Weights must sum to 1.0."
+        );
+    }
+}
+
+double WeightedAverageStrategy::calculate(
+    const std::vector<ExamScore>& scores
+) const {
+
+    if (scores.empty()) {
+        throw std::invalid_argument(
+            "Exam scores cannot be empty."
+        );
+    }
+
+    double finalScore = 0.0;
+
+    for (const auto& examScore : scores) {
+        const Exam* exam = examScore.getExam();
+
+        const auto weightIt = weights.find(exam->getId());
+
+        if (weightIt == weights.end()) {
+            throw std::invalid_argument(
+                "Weight is missing for an exam."
+            );
+        }
+
+        finalScore +=
+            examScore.getScore() * weightIt->second;
+    }
+
+    return finalScore;
+}
