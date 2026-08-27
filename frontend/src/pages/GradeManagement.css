@@ -1,0 +1,169 @@
+.grading-settings-card {
+  display: grid;
+
+  grid-template-columns:
+    280px 1fr;
+
+  gap: 30px;
+
+  margin-bottom: 20px;
+
+  padding: 22px;
+
+  background: #ffffff;
+
+  border:
+    1px solid
+    #e5e7eb;
+
+  border-radius: 14px;
+}
+
+
+.grading-settings-card
+.form-group {
+  margin: 0;
+}
+
+
+.grading-config-summary {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+
+  gap: 12px;
+}
+
+
+.grading-config-summary div {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 4px;
+
+  padding: 13px 15px;
+
+  background: #f9fafb;
+
+  border-radius: 9px;
+}
+
+
+.grading-config-summary span {
+  color: #6b7280;
+
+  font-size: 12px;
+}
+
+
+.grading-config-summary strong {
+  font-size: 14px;
+
+  color: #111827;
+}
+
+
+.grading-config-summary small {
+  color: #6b7280;
+
+  font-size: 12px;
+}
+
+
+.grade-management-table-card {
+  overflow-x: auto;
+}
+
+
+.grade-management-table {
+  min-width: 1050px;
+}
+
+
+.student-cell {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 3px;
+}
+
+
+.student-cell span {
+  color: #6b7280;
+
+  font-size: 12px;
+}
+
+
+.score-input {
+  width: 90px;
+
+  padding: 9px 10px;
+
+  border:
+    1px solid
+    #d1d5db;
+
+  border-radius: 7px;
+
+  background: #ffffff;
+
+  color: #111827;
+
+  font: inherit;
+}
+
+
+.score-input:focus {
+  outline: none;
+
+  border-color: #6b7280;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(107, 114, 128, 0.12);
+}
+
+
+.grade-value {
+  font-size: 18px;
+
+  color: #111827;
+}
+
+
+.grade-management-actions {
+  display: flex;
+
+  justify-content: flex-end;
+
+  margin-top: 20px;
+}
+
+
+@media (max-width: 800px) {
+
+  .grading-settings-card {
+    grid-template-columns:
+      1fr;
+  }
+
+
+  .grading-config-summary {
+    grid-template-columns:
+      1fr;
+  }
+
+
+  .grade-management-actions
+  .primary-action-button {
+    width: 100%;
+  }
+
+}

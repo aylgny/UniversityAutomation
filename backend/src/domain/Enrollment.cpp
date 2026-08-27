@@ -11,6 +11,7 @@ Enrollment::Enrollment(
     student(student),
     course(course) {
 
+    // Enrollment must always reference a valid Student and Course.
     if (student == nullptr) {
         throw std::invalid_argument("Student cannot be null.");
     }
@@ -33,6 +34,8 @@ Course* Enrollment::getCourse() const {
 }
 
 void Enrollment::setExamScore(const Exam* exam, double score) {
+    // If a score already exists for this Exam, update it instead of
+    // creating a duplicate ExamScore entry.
     for (auto& examScore : examScores) {
         if (examScore.getExam() == exam) {
             examScore.setScore(score);
@@ -40,10 +43,12 @@ void Enrollment::setExamScore(const Exam* exam, double score) {
         }
     }
 
+    // Otherwise create a new ExamScore directly inside the vector.
     examScores.emplace_back(exam, score);
 }
 
 const std::vector<ExamScore>& Enrollment::getExamScores() const {
+    // Return the existing collection without copying it.
     return examScores;
 }
 
@@ -53,9 +58,13 @@ std::optional<double> Enrollment::getFinalScore() const {
 
 void Enrollment::setFinalScore(double score) {
     if (score < 0.0 || score > 100.0) {
-        throw std::invalid_argument("Final score must be between 0 and 100.");
+        throw std::invalid_argument(
+            "Final score must be between 0 and 100."
+        );
     }
 
+    // Setting a value changes finalScore from an empty optional
+    // into a calculated result.
     finalScore = score;
 }
 
@@ -64,5 +73,6 @@ std::optional<LetterGrade> Enrollment::getLetterGrade() const {
 }
 
 void Enrollment::setLetterGrade(LetterGrade grade) {
+    // Letter grade becomes available after final grade calculation.
     letterGrade = grade;
 }

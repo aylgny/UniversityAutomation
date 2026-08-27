@@ -18,6 +18,7 @@ WeightedAverageStrategy::WeightedAverageStrategy(
 
     double totalWeight = 0.0;
 
+    // Validate each weight and calculate the total.
     for (const auto& [examId, weight] : weights) {
         if (weight < 0.0 || weight > 1.0) {
             throw std::invalid_argument(
@@ -28,6 +29,7 @@ WeightedAverageStrategy::WeightedAverageStrategy(
         totalWeight += weight;
     }
 
+    // Use a tolerance because floating-point values may not sum exactly to 1.0.
     if (std::abs(totalWeight - 1.0) > 0.0001) {
         throw std::invalid_argument(
             "Weights must sum to 1.0."
@@ -50,6 +52,7 @@ double WeightedAverageStrategy::calculate(
     for (const auto& examScore : scores) {
         const Exam* exam = examScore.getExam();
 
+        // Find the configured weight for this exam.
         const auto weightIt = weights.find(exam->getId());
 
         if (weightIt == weights.end()) {
@@ -63,4 +66,9 @@ double WeightedAverageStrategy::calculate(
     }
 
     return finalScore;
+}
+
+const std::map<int, double>&
+WeightedAverageStrategy::getWeights() const {
+    return weights;
 }

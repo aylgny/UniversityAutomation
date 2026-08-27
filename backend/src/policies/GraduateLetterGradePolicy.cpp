@@ -1,6 +1,7 @@
 #include "policies/GraduateLetterGradePolicy.h"
 
 LetterGrade GraduateLetterGradePolicy::getLetterGrade(double score) const {
+    // Convert the numeric score according to graduate grade ranges.
     if (score >= 95.0) return LetterGrade::AA;
     if (score >= 90.0) return LetterGrade::BA;
     if (score >= 80.0) return LetterGrade::BB;

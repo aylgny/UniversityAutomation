@@ -30,6 +30,11 @@ bool CourseGradingPolicy::hasStrategy() const {
     return strategy != nullptr;
 }
 
+const GradeCalculationStrategy*
+CourseGradingPolicy::getStrategy() const {
+    return strategy.get();
+}
+
 double CourseGradingPolicy::calculateGrade(
     const std::vector<ExamScore>& scores
 ) const {

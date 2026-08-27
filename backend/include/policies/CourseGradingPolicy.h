@@ -25,6 +25,8 @@ public:
 
     bool hasStrategy() const;
 
+    const GradeCalculationStrategy* getStrategy() const;
+
     double calculateGrade(
         const std::vector<ExamScore>& scores
     ) const;

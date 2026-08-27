@@ -1,0 +1,24 @@
+{
+  "name": "universityautomation",
+  "version": "1.0.0",
+  "description": "A university automation system developed as a software engineering case study.",
+  "main": "index.js",
+  "scripts": {
+    "electron": "electron electron/main.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aylgny/UniversityAutomation.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/aylgny/UniversityAutomation/issues"
+  },
+  "homepage": "https://github.com/aylgny/UniversityAutomation#readme",
+  "devDependencies": {
+    "electron": "^44.0.0"
+  }
+}

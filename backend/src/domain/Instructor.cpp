@@ -5,6 +5,7 @@ Instructor::Instructor(int id, const std::string& name)
 }
 
 void Instructor::addCourse(Course* course) {
+    // Avoid storing invalid course references.
     if (course != nullptr) {
         courses.push_back(course);
     }

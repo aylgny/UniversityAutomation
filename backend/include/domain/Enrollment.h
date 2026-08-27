@@ -10,15 +10,20 @@ class Student;
 class Course;
 class Exam;
 
+// Represents the relationship between a student and a course.
+// Stores data that belongs specifically to this enrollment.
 class Enrollment {
 private:
     int id;
 
+    // Non-owning references to the related student and course.
     Student* student;
     Course* course;
 
+    // Enrollment owns the exam scores for this student-course relationship.
     std::vector<ExamScore> examScores;
 
+    // These values may not exist until final grading is completed.
     std::optional<double> finalScore;
     std::optional<LetterGrade> letterGrade;
 
@@ -34,6 +39,7 @@ public:
     Student* getStudent() const;
     Course* getCourse() const;
 
+    // Updates an existing score or adds a new one for the given exam.
     void setExamScore(const Exam* exam, double score);
 
     const std::vector<ExamScore>& getExamScores() const;

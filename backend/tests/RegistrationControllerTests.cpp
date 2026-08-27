@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <memory>
 #include <vector>
 
 #include "application/RegistrationController.h"
@@ -17,7 +18,10 @@
 // REGISTRATION CONTROLLER TESTS
 // =========================================================
 
-TEST(RegistrationControllerTest, EnrollsStudentWhenCreditLimitIsNotExceeded) {
+TEST(
+    RegistrationControllerTest,
+    EnrollsStudentWhenCreditLimitIsNotExceeded
+) {
     UndergraduateStudent student(
         1,
         "Student",
@@ -31,7 +35,7 @@ TEST(RegistrationControllerTest, EnrollsStudentWhenCreditLimitIsNotExceeded) {
         5
     );
 
-    std::vector<Enrollment> enrollments;
+    std::vector<std::unique_ptr<Enrollment>> enrollments;
 
     RegistrationController controller;
 
@@ -42,7 +46,10 @@ TEST(RegistrationControllerTest, EnrollsStudentWhenCreditLimitIsNotExceeded) {
             enrollments
         );
 
-    ASSERT_NE(enrollment, nullptr);
+    ASSERT_NE(
+        enrollment,
+        nullptr
+    );
 
     EXPECT_EQ(
         enrollment->getStudent(),
@@ -61,7 +68,10 @@ TEST(RegistrationControllerTest, EnrollsStudentWhenCreditLimitIsNotExceeded) {
 }
 
 
-TEST(RegistrationControllerTest, RejectsDuplicateEnrollment) {
+TEST(
+    RegistrationControllerTest,
+    RejectsDuplicateEnrollment
+) {
     UndergraduateStudent student(
         1,
         "Student",
@@ -75,7 +85,7 @@ TEST(RegistrationControllerTest, RejectsDuplicateEnrollment) {
         5
     );
 
-    std::vector<Enrollment> enrollments;
+    std::vector<std::unique_ptr<Enrollment>> enrollments;
 
     RegistrationController controller;
 
@@ -101,7 +111,10 @@ TEST(RegistrationControllerTest, RejectsDuplicateEnrollment) {
 }
 
 
-TEST(RegistrationControllerTest, AllowsUndergraduateStudentUpToMaximumCreditLimit) {
+TEST(
+    RegistrationControllerTest,
+    AllowsUndergraduateStudentUpToMaximumCreditLimit
+) {
     UndergraduateStudent student(
         1,
         "Student",
@@ -122,7 +135,7 @@ TEST(RegistrationControllerTest, AllowsUndergraduateStudentUpToMaximumCreditLimi
         10
     );
 
-    std::vector<Enrollment> enrollments;
+    std::vector<std::unique_ptr<Enrollment>> enrollments;
 
     RegistrationController controller;
 
@@ -149,7 +162,10 @@ TEST(RegistrationControllerTest, AllowsUndergraduateStudentUpToMaximumCreditLimi
 }
 
 
-TEST(RegistrationControllerTest, RejectsUndergraduateStudentWhenCreditLimitWouldBeExceeded) {
+TEST(
+    RegistrationControllerTest,
+    RejectsUndergraduateStudentWhenCreditLimitWouldBeExceeded
+) {
     UndergraduateStudent student(
         1,
         "Student",
@@ -177,7 +193,7 @@ TEST(RegistrationControllerTest, RejectsUndergraduateStudentWhenCreditLimitWould
         5
     );
 
-    std::vector<Enrollment> enrollments;
+    std::vector<std::unique_ptr<Enrollment>> enrollments;
 
     RegistrationController controller;
 
@@ -209,7 +225,10 @@ TEST(RegistrationControllerTest, RejectsUndergraduateStudentWhenCreditLimitWould
 }
 
 
-TEST(RegistrationControllerTest, AppliesGraduateCreditLimitCorrectly) {
+TEST(
+    RegistrationControllerTest,
+    AppliesGraduateCreditLimitCorrectly
+) {
     GraduateStudent student(
         1,
         "Graduate Student",
@@ -237,7 +256,7 @@ TEST(RegistrationControllerTest, AppliesGraduateCreditLimitCorrectly) {
         5
     );
 
-    std::vector<Enrollment> enrollments;
+    std::vector<std::unique_ptr<Enrollment>> enrollments;
 
     RegistrationController controller;
 
@@ -273,7 +292,10 @@ TEST(RegistrationControllerTest, AppliesGraduateCreditLimitCorrectly) {
 }
 
 
-TEST(RegistrationControllerTest, FailedEnrollmentDoesNotModifyEnrollmentCollection) {
+TEST(
+    RegistrationControllerTest,
+    FailedEnrollmentDoesNotModifyEnrollmentCollection
+) {
     UndergraduateStudent student(
         1,
         "Student",
@@ -294,7 +316,7 @@ TEST(RegistrationControllerTest, FailedEnrollmentDoesNotModifyEnrollmentCollecti
         10
     );
 
-    std::vector<Enrollment> enrollments;
+    std::vector<std::unique_ptr<Enrollment>> enrollments;
 
     RegistrationController controller;
 

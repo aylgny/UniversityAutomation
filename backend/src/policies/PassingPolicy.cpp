@@ -9,5 +9,7 @@ LetterGrade PassingPolicy::getMinimumPassingGrade() const {
 }
 
 bool PassingPolicy::isPassed(LetterGrade grade) const {
+    // LetterGrade values are ordered from best to worst,
+    // so a smaller or equal numeric value means a passing grade.
     return static_cast<int>(grade) <= static_cast<int>(minimumPassingGrade);
 }

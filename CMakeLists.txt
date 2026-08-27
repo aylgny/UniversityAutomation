@@ -7,10 +7,42 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 
 # =========================================================
+# EXTERNAL DEPENDENCIES
+# =========================================================
+
+include(FetchContent)
+
+
+# ---------------------------------------------------------
+# JSON
+# ---------------------------------------------------------
+
+FetchContent_Declare(
+    json
+    URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz
+)
+
+FetchContent_MakeAvailable(json)
+
+
+# ---------------------------------------------------------
+# HTTP SERVER
+# ---------------------------------------------------------
+
+FetchContent_Declare(
+    cpp_httplib
+    URL https://github.com/yhirose/cpp-httplib/archive/refs/tags/v0.18.0.zip
+)
+
+FetchContent_MakeAvailable(cpp_httplib)
+
+
+# =========================================================
 # CORE BACKEND LIBRARY
 # =========================================================
 
-add_library(UniversityCore
+add_library(
+    UniversityCore
 
     # Domain
     backend/src/domain/Person.cpp
@@ -41,12 +73,23 @@ add_library(UniversityCore
     # Application
     backend/src/application/RegistrationController.cpp
     backend/src/application/GradingController.cpp
+    backend/src/application/ApplicationState.cpp
+    backend/src/application/ApiServer.cpp
 )
+
 
 target_include_directories(
     UniversityCore
     PUBLIC
     backend/include
+)
+
+
+target_link_libraries(
+    UniversityCore
+    PRIVATE
+    nlohmann_json::nlohmann_json
+    httplib::httplib
 )
 
 
@@ -58,6 +101,7 @@ add_executable(
     UniversityAutomation
     backend/src/main.cpp
 )
+
 
 target_link_libraries(
     UniversityAutomation
@@ -72,9 +116,8 @@ target_link_libraries(
 
 include(CTest)
 
-if(BUILD_TESTING)
 
-    include(FetchContent)
+if(BUILD_TESTING)
 
     FetchContent_Declare(
         googletest
@@ -104,6 +147,7 @@ if(BUILD_TESTING)
         backend/tests/CoursePolicyTests.cpp
     )
 
+
     target_link_libraries(
         UniversityTests
         PRIVATE
@@ -113,6 +157,7 @@ if(BUILD_TESTING)
 
 
     include(GoogleTest)
+
 
     gtest_discover_tests(
         UniversityTests

@@ -6,6 +6,7 @@ GraduateCourse::GraduateCourse(
     const std::string& name,
     int credits
 )
+    // Graduate courses require at least CC to pass.
     : Course(
         id,
         code,

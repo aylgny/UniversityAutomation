@@ -1,0 +1,933 @@
+* {
+  box-sizing: border-box;
+}
+
+
+body {
+  margin: 0;
+
+  min-width: 320px;
+  min-height: 100vh;
+
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+
+  background: #f4f6f8;
+  color: #1f2937;
+}
+
+
+button {
+  font: inherit;
+}
+
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+
+.app {
+  min-height: 100vh;
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 24px;
+
+  padding: 24px 48px;
+
+  background: #ffffff;
+
+  border-bottom:
+    1px solid
+    #e5e7eb;
+}
+
+
+.app-header h1 {
+  margin: 0;
+
+  font-size: 28px;
+}
+
+
+.app-header p {
+  margin: 6px 0 0;
+
+  color: #6b7280;
+}
+
+
+/* =========================================================
+   ROLE SWITCHER
+   ========================================================= */
+
+.role-switcher {
+  display: flex;
+
+  gap: 8px;
+
+  padding: 4px;
+
+  background: #f3f4f6;
+
+  border-radius: 10px;
+}
+
+
+.role-switcher button {
+  border: none;
+
+  border-radius: 8px;
+
+  padding: 10px 16px;
+
+  background: transparent;
+
+  color: #4b5563;
+
+  cursor: pointer;
+}
+
+
+.role-switcher button.active {
+  background: #ffffff;
+
+  color: #111827;
+
+  box-shadow:
+    0 1px 4px
+    rgba(0, 0, 0, 0.12);
+}
+
+
+/* =========================================================
+   DASHBOARD
+   ========================================================= */
+
+.dashboard {
+  max-width: 1200px;
+
+  margin: 0 auto;
+
+  padding: 40px 48px;
+}
+
+
+.welcome-card {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 30px;
+
+  padding: 28px;
+
+  background: #ffffff;
+
+  border:
+    1px solid
+    #e5e7eb;
+
+  border-radius: 14px;
+
+  margin-bottom: 28px;
+}
+
+
+.welcome-card h2 {
+  margin: 0 0 8px;
+}
+
+
+.welcome-card p {
+  margin: 0;
+
+  color: #6b7280;
+}
+
+
+/* =========================================================
+   STUDENT SUMMARY
+   ========================================================= */
+
+.student-summary {
+  display: flex;
+
+  gap: 12px;
+}
+
+
+.student-summary div {
+  display: flex;
+
+  flex-direction: column;
+
+  min-width: 105px;
+
+  padding: 12px 16px;
+
+  background: #f9fafb;
+
+  border-radius: 10px;
+}
+
+
+.student-summary span {
+  color: #6b7280;
+
+  font-size: 12px;
+}
+
+
+.student-summary strong {
+  margin-top: 4px;
+
+  font-size: 18px;
+}
+
+
+/* =========================================================
+   DASHBOARD CARDS
+   ========================================================= */
+
+.card-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      3,
+      minmax(0, 1fr)
+    );
+
+  gap: 20px;
+}
+
+
+.dashboard-card {
+  display: flex;
+
+  flex-direction: column;
+
+  min-height: 210px;
+
+  padding: 24px;
+
+  background: #ffffff;
+
+  border:
+    1px solid
+    #e5e7eb;
+
+  border-radius: 14px;
+}
+
+
+.dashboard-card h3 {
+  margin: 0 0 10px;
+}
+
+
+.dashboard-card p {
+  margin: 0 0 24px;
+
+  color: #6b7280;
+
+  line-height: 1.5;
+}
+
+
+.dashboard-card button,
+.register-button {
+  margin-top: auto;
+
+  align-self: flex-start;
+
+  border: none;
+
+  border-radius: 8px;
+
+  padding: 10px 14px;
+
+  background: #111827;
+
+  color: #ffffff;
+
+  cursor: pointer;
+}
+
+
+.dashboard-card button:hover,
+.register-button:hover:not(:disabled) {
+  opacity: 0.88;
+}
+
+
+.register-button:disabled {
+  background: #d1d5db;
+
+  color: #6b7280;
+}
+
+
+/* =========================================================
+   PAGE
+   ========================================================= */
+
+.page {
+  width: 100%;
+}
+
+
+.page-header {
+  display: flex;
+
+  justify-content: space-between;
+  align-items: flex-end;
+
+  gap: 30px;
+
+  margin-bottom: 24px;
+}
+
+
+.page-header h2 {
+  margin: 16px 0 8px;
+
+  font-size: 28px;
+}
+
+
+.page-header p {
+  margin: 0;
+
+  color: #6b7280;
+}
+
+
+.back-button {
+  padding: 0;
+
+  border: none;
+
+  background: transparent;
+
+  color: #4b5563;
+
+  cursor: pointer;
+}
+
+
+.back-button:hover {
+  color: #111827;
+}
+
+
+/* =========================================================
+   SUMMARY BOXES
+   ========================================================= */
+
+.credit-summary,
+.course-summary {
+  display: grid;
+
+  grid-template-columns:
+    auto auto;
+
+  gap: 6px 22px;
+
+  min-width: 230px;
+
+  padding: 16px 20px;
+
+  background: #ffffff;
+
+  border:
+    1px solid
+    #e5e7eb;
+
+  border-radius: 12px;
+}
+
+
+.credit-summary span,
+.course-summary span {
+  color: #6b7280;
+
+  font-size: 14px;
+}
+
+
+.credit-summary strong,
+.course-summary strong {
+  text-align: right;
+}
+
+
+/* =========================================================
+   STATUS MESSAGE
+   ========================================================= */
+
+.status-message {
+  margin-bottom: 20px;
+
+  padding: 14px 18px;
+
+  border-radius: 10px;
+
+  font-size: 14px;
+
+  font-weight: 500;
+}
+
+
+.status-message.success {
+  background: #ecfdf5;
+
+  border:
+    1px solid
+    #a7f3d0;
+
+  color: #065f46;
+}
+
+
+.status-message.error {
+  background: #fef2f2;
+
+  border:
+    1px solid
+    #fecaca;
+
+  color: #991b1b;
+}
+
+
+/* =========================================================
+   COURSE TABLE
+   ========================================================= */
+
+.table-card {
+  overflow: hidden;
+
+  background: #ffffff;
+
+  border:
+    1px solid
+    #e5e7eb;
+
+  border-radius: 14px;
+}
+
+
+.course-table {
+  width: 100%;
+
+  border-collapse: collapse;
+}
+
+
+.course-table th,
+.course-table td {
+  padding: 18px 20px;
+
+  text-align: left;
+
+  border-bottom:
+    1px solid
+    #e5e7eb;
+}
+
+
+.course-table th {
+  background: #f9fafb;
+
+  color: #4b5563;
+
+  font-size: 14px;
+
+  font-weight: 600;
+}
+
+
+.course-table tbody
+tr:last-child td {
+  border-bottom: none;
+}
+
+
+.course-table tbody
+tr:hover {
+  background: #f9fafb;
+}
+
+
+.register-button {
+  margin: 0;
+}
+
+
+.empty-table {
+  padding: 40px !important;
+
+  text-align: center !important;
+
+  color: #6b7280;
+}
+
+
+.status-badge {
+  display: inline-block;
+
+  padding: 6px 10px;
+
+  background: #ecfdf5;
+
+  color: #065f46;
+
+  border-radius: 999px;
+
+  font-size: 13px;
+
+  font-weight: 600;
+}
+
+
+/* =========================================================
+   GRADES
+   ========================================================= */
+
+.grade-list {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 18px;
+}
+
+
+.grade-card {
+  padding: 24px;
+
+  background: #ffffff;
+
+  border:
+    1px solid
+    #e5e7eb;
+
+  border-radius: 14px;
+}
+
+
+.grade-card-header {
+  display: flex;
+
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 30px;
+}
+
+
+.course-code {
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: #6b7280;
+
+  font-size: 13px;
+
+  font-weight: 600;
+}
+
+
+.grade-card h3 {
+  margin: 0;
+
+  font-size: 19px;
+}
+
+
+.grade-result {
+  display: flex;
+
+  align-items: center;
+
+  gap: 20px;
+}
+
+
+.grade-result div {
+  display: flex;
+
+  flex-direction: column;
+
+  min-width: 82px;
+}
+
+
+.grade-result span {
+  color: #6b7280;
+
+  font-size: 12px;
+}
+
+
+.grade-result strong {
+  margin-top: 3px;
+
+  font-size: 20px;
+}
+
+
+.letter-grade {
+  font-size: 23px !important;
+}
+
+
+.result-badge {
+  display: inline-block;
+
+  padding: 7px 11px;
+
+  border-radius: 999px;
+
+  font-size: 13px;
+
+  font-weight: 600;
+}
+
+
+.result-badge.passed {
+  background: #ecfdf5;
+
+  color: #065f46;
+}
+
+
+.result-badge.failed {
+  background: #fef2f2;
+
+  color: #991b1b;
+}
+
+
+.result-badge.pending {
+  background: #f3f4f6;
+
+  color: #6b7280;
+}
+
+
+.exam-score-section {
+  margin-top: 22px;
+
+  padding-top: 20px;
+
+  border-top:
+    1px solid
+    #e5e7eb;
+}
+
+
+.exam-score-section h4 {
+  margin:
+    0 0 14px;
+
+  font-size: 14px;
+
+  color: #4b5563;
+}
+
+
+.exam-score-grid {
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap: 12px;
+}
+
+
+.exam-score-item {
+  display: flex;
+
+  align-items: center;
+
+  gap: 16px;
+
+  min-width: 150px;
+
+  padding: 11px 14px;
+
+  background: #f9fafb;
+
+  border-radius: 9px;
+}
+
+
+.exam-score-item span {
+  color: #6b7280;
+
+  font-size: 13px;
+}
+
+
+.exam-score-item strong {
+  margin-left: auto;
+
+  font-size: 16px;
+}
+
+
+.no-score-message {
+  margin: 0;
+
+  color: #9ca3af;
+
+  font-size: 14px;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 800px) {
+
+  .app-header {
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    padding: 20px;
+  }
+
+
+  .dashboard {
+    padding:
+      24px 20px;
+  }
+
+
+  .welcome-card {
+    flex-direction: column;
+
+    align-items: flex-start;
+  }
+
+
+  .student-summary {
+    width: 100%;
+
+    flex-wrap: wrap;
+  }
+
+
+  .student-summary div {
+    flex: 1;
+  }
+
+
+  .card-grid {
+    grid-template-columns:
+      1fr;
+  }
+
+
+  .page-header {
+    flex-direction: column;
+
+    align-items: flex-start;
+  }
+
+
+  .credit-summary,
+  .course-summary {
+    width: 100%;
+  }
+
+
+  .table-card {
+    overflow-x: auto;
+  }
+
+
+  .course-table {
+    min-width: 700px;
+  }
+
+
+  .grade-card-header {
+    flex-direction: column;
+  }
+
+
+  .grade-result {
+    width: 100%;
+
+    flex-wrap: wrap;
+  }
+
+}
+
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f4f6f8;
+  padding: 32px;
+}
+
+.login-container {
+  width: 100%;
+  max-width: 520px;
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.login-header h1 {
+  margin: 0 0 8px;
+  font-size: 36px;
+}
+
+.login-header p {
+  margin: 0;
+  color: #667085;
+}
+
+.login-card {
+  background: white;
+  border: 1px solid #e1e5ea;
+  border-radius: 16px;
+  padding: 32px;
+}
+
+.login-card-header {
+  margin-bottom: 28px;
+}
+
+.login-card-header h2 {
+  margin: 0 0 8px;
+}
+
+.login-card-header p {
+  margin: 0;
+  color: #667085;
+}
+
+.login-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.login-form-group label {
+  font-weight: 600;
+}
+
+.login-form-group input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 13px 14px;
+  border: 1px solid #d0d5dd;
+  border-radius: 8px;
+  font-size: 15px;
+  outline: none;
+}
+
+.login-form-group input:focus {
+  border-color: #101828;
+}
+
+.login-submit-button {
+  width: 100%;
+  padding: 13px;
+  border: none;
+  border-radius: 8px;
+  background: #101828;
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.login-submit-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.login-error {
+  margin-bottom: 16px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.demo-credentials {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #eaecf0;
+  color: #667085;
+  font-size: 14px;
+}
+
+.demo-credentials p {
+  margin: 0 0 4px;
+  color: #344054;
+}
+
+.header-user-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.user-role-label {
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: #f2f4f7;
+  color: #344054;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.logout-button {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  background: #101828;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.logout-button:hover {
+  opacity: 0.9;
+}

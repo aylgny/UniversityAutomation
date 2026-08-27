@@ -27,5 +27,6 @@ void ExamScore::setScore(double score) {
         throw std::invalid_argument("Score must be between 0 and 100.");
     }
 
+    // Update the stored score after validation.
     this->score = score;
 }

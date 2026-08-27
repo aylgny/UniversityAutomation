@@ -10,6 +10,9 @@ GraduateStudent::GraduateStudent(
     const std::string& name,
     double gpa
 )
+
+// The concrete student type selects the appropriate policies,
+// while the Student base class owns and uses them.
     : Student(
         id,
         name,

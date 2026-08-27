@@ -1,0 +1,465 @@
+.configuration-layout {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+
+  gap: 20px;
+}
+
+
+.configuration-card {
+  padding: 24px;
+
+  background: #ffffff;
+
+  border:
+    1px solid
+    #e5e7eb;
+
+  border-radius: 14px;
+}
+
+
+.configuration-card.full-width {
+  grid-column: 1 / -1;
+}
+
+
+.configuration-card h3 {
+  margin:
+    0 0 18px;
+
+  font-size: 18px;
+}
+
+
+.configuration-description {
+  margin:
+    -8px 0 18px;
+
+  color: #6b7280;
+
+  font-size: 14px;
+
+  line-height: 1.5;
+}
+
+
+/* =========================================================
+   FORM
+   ========================================================= */
+
+.form-group {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 8px;
+
+  margin-bottom: 18px;
+}
+
+
+.form-group:last-child {
+  margin-bottom: 0;
+}
+
+
+.form-group label {
+  color: #374151;
+
+  font-size: 14px;
+
+  font-weight: 600;
+}
+
+
+.form-group input,
+.form-group select {
+  width: 100%;
+
+  padding: 11px 12px;
+
+  border:
+    1px solid
+    #d1d5db;
+
+  border-radius: 8px;
+
+  background: #ffffff;
+
+  color: #111827;
+
+  font: inherit;
+}
+
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+
+  border-color: #6b7280;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(107, 114, 128, 0.12);
+}
+
+
+/* =========================================================
+   STUDENT TYPE
+   ========================================================= */
+
+.segmented-control {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      2,
+      1fr
+    );
+
+  gap: 8px;
+
+  padding: 4px;
+
+  background: #f3f4f6;
+
+  border-radius: 10px;
+}
+
+
+.segmented-control button {
+  border: none;
+
+  border-radius: 8px;
+
+  padding: 11px;
+
+  background: transparent;
+
+  color: #4b5563;
+
+  cursor: pointer;
+}
+
+
+.segmented-control button.selected {
+  background: #111827;
+
+  color: #ffffff;
+}
+
+
+/* =========================================================
+   GRADING METHOD
+   ========================================================= */
+
+.grading-method-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+
+  gap: 14px;
+}
+
+
+.grading-method-card {
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: flex-start;
+
+  gap: 7px;
+
+  padding: 18px;
+
+  text-align: left;
+
+  background: #ffffff;
+
+  border:
+    1px solid
+    #d1d5db;
+
+  border-radius: 11px;
+
+  cursor: pointer;
+}
+
+
+.grading-method-card:hover {
+  background: #f9fafb;
+}
+
+
+.grading-method-card.selected {
+  border-color: #111827;
+
+  box-shadow:
+    0 0 0 1px
+    #111827;
+}
+
+
+.grading-method-card strong {
+  color: #111827;
+
+  font-size: 15px;
+}
+
+
+.grading-method-card span {
+  color: #6b7280;
+
+  font-size: 13px;
+
+  line-height: 1.45;
+}
+
+
+/* =========================================================
+   WEIGHTS
+   ========================================================= */
+
+.configuration-title-row {
+  display: flex;
+
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 20px;
+}
+
+
+.weight-total {
+  padding: 8px 12px;
+
+  border-radius: 8px;
+
+  font-size: 13px;
+
+  font-weight: 600;
+}
+
+
+.weight-total.valid {
+  background: #ecfdf5;
+
+  color: #065f46;
+}
+
+
+.weight-total.invalid {
+  background: #fef2f2;
+
+  color: #991b1b;
+}
+
+
+.exam-config-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      3,
+      minmax(0, 1fr)
+    );
+
+  gap: 14px;
+}
+
+
+.exam-config-item {
+  padding: 16px;
+
+  background: #f9fafb;
+
+  border-radius: 10px;
+}
+
+
+.exam-config-item label {
+  display: block;
+
+  margin-bottom: 9px;
+
+  color: #4b5563;
+
+  font-size: 13px;
+
+  font-weight: 600;
+}
+
+
+.weight-input {
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+}
+
+
+.weight-input input {
+  width: 100%;
+
+  padding: 9px 10px;
+
+  border:
+    1px solid
+    #d1d5db;
+
+  border-radius: 7px;
+
+  font: inherit;
+}
+
+
+.weight-input span {
+  color: #6b7280;
+
+  font-weight: 600;
+}
+
+
+/* =========================================================
+   THRESHOLD
+   ========================================================= */
+
+.threshold-layout {
+  display: grid;
+
+  grid-template-columns:
+    220px 1fr;
+
+  gap: 30px;
+
+  align-items: start;
+}
+
+
+.threshold-exams {
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap: 10px;
+}
+
+
+.checkbox-item {
+  display: flex !important;
+
+  flex-direction: row !important;
+
+  align-items: center;
+
+  gap: 7px;
+
+  padding: 9px 12px;
+
+  background: #f9fafb;
+
+  border:
+    1px solid
+    #e5e7eb;
+
+  border-radius: 8px;
+
+  cursor: pointer;
+}
+
+
+.checkbox-item input {
+  width: auto;
+
+  margin: 0;
+}
+
+
+/* =========================================================
+   ACTION
+   ========================================================= */
+
+.configuration-actions {
+  grid-column: 1 / -1;
+
+  display: flex;
+
+  justify-content: flex-end;
+}
+
+
+.primary-action-button {
+  border: none;
+
+  border-radius: 9px;
+
+  padding: 12px 18px;
+
+  background: #111827;
+
+  color: #ffffff;
+
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+
+.primary-action-button:hover {
+  opacity: 0.88;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 800px) {
+
+  .configuration-layout {
+    grid-template-columns: 1fr;
+  }
+
+
+  .configuration-card.full-width {
+    grid-column: auto;
+  }
+
+
+  .grading-method-grid {
+    grid-template-columns: 1fr;
+  }
+
+
+  .exam-config-grid {
+    grid-template-columns: 1fr;
+  }
+
+
+  .threshold-layout {
+    grid-template-columns: 1fr;
+  }
+
+
+  .configuration-actions {
+    grid-column: auto;
+  }
+
+
+  .primary-action-button {
+    width: 100%;
+  }
+
+}

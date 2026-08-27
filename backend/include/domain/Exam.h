@@ -2,6 +2,7 @@
 
 #include <string>
 
+// Represents an exam definition belonging to a course.
 class Exam {
 private:
     int id;

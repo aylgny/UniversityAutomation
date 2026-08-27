@@ -2,6 +2,7 @@
 
 #include "domain/Course.h"
 
+// Concrete course type for graduate-level courses.
 class GraduateCourse : public Course {
 public:
     GraduateCourse(

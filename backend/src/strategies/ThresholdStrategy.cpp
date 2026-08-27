@@ -45,6 +45,7 @@ double ThresholdStrategy::calculate(
 
         bool isThresholdExam = false;
 
+        // Check whether this score belongs to one of the threshold exams.
         for (int examId : thresholdExamIds) {
             if (exam->getId() == examId) {
                 isThresholdExam = true;
@@ -71,6 +72,7 @@ double ThresholdStrategy::calculate(
     const double thresholdAverage =
         thresholdTotal / thresholdCount;
 
+    // If the threshold is not met, other exam scores are ignored.
     if (thresholdAverage < threshold) {
         return thresholdAverage;
     }
@@ -81,5 +83,16 @@ double ThresholdStrategy::calculate(
         );
     }
 
+    // Once the threshold is satisfied, use the average of the other exams.
     return otherTotal / otherCount;
+}
+
+double ThresholdStrategy::getThreshold() const {
+    return threshold;
+}
+
+
+const std::vector<int>&
+ThresholdStrategy::getThresholdExamIds() const {
+    return thresholdExamIds;
 }

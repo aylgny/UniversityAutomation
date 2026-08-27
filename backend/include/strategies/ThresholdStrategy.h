@@ -4,6 +4,7 @@
 
 #include "strategies/GradeCalculationStrategy.h"
 
+// Calculates the final grade using a threshold-based grading rule.
 class ThresholdStrategy : public GradeCalculationStrategy {
 private:
     double threshold;
@@ -18,4 +19,9 @@ public:
     double calculate(
         const std::vector<ExamScore>& scores
     ) const override;
+
+    double getThreshold() const;
+
+    const std::vector<int>&
+        getThresholdExamIds() const;
 };

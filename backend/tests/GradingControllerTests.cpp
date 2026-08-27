@@ -1,8 +1,6 @@
 #include <gtest/gtest.h>
 
 #include "application/GradingController.h"
-#include "application/WeightedAverageConfig.h"
-#include "application/ThresholdConfig.h"
 
 #include "domain/UndergraduateStudent.h"
 #include "domain/GraduateStudent.h"
@@ -18,7 +16,10 @@
 // GRADING CONTROLLER TESTS
 // =========================================================
 
-TEST(GradingControllerTest, CalculatesWeightedFinalScoreAndLetterGradeForUndergraduateStudent) {
+TEST(
+    GradingControllerTest,
+    CalculatesWeightedFinalScoreAndLetterGradeForUndergraduateStudent
+) {
     UndergraduateStudent student(
         1,
         "Undergraduate Student",
@@ -45,17 +46,14 @@ TEST(GradingControllerTest, CalculatesWeightedFinalScoreAndLetterGradeForUndergr
         2
     );
 
-    WeightedAverageConfig config;
-
-    config.weights = {
-        {1, 0.40},
-        {2, 0.60}
-    };
-
-    controller.configureGradingMethod(
+    // Configure exam weights directly without a separate config object.
+    controller.configureWeightedAverage(
         course,
         StudentType::UNDERGRADUATE,
-        config
+        {
+            {1, 0.40},
+            {2, 0.60}
+        }
     );
 
     controller.enterExamScore(
@@ -94,7 +92,10 @@ TEST(GradingControllerTest, CalculatesWeightedFinalScoreAndLetterGradeForUndergr
 }
 
 
-TEST(GradingControllerTest, CalculatesWeightedFinalScoreAndLetterGradeForGraduateStudent) {
+TEST(
+    GradingControllerTest,
+    CalculatesWeightedFinalScoreAndLetterGradeForGraduateStudent
+) {
     GraduateStudent student(
         2,
         "Graduate Student",
@@ -121,17 +122,13 @@ TEST(GradingControllerTest, CalculatesWeightedFinalScoreAndLetterGradeForGraduat
         2
     );
 
-    WeightedAverageConfig config;
-
-    config.weights = {
-        {1, 0.50},
-        {2, 0.50}
-    };
-
-    controller.configureGradingMethod(
+    controller.configureWeightedAverage(
         course,
         StudentType::GRADUATE,
-        config
+        {
+            {1, 0.50},
+            {2, 0.50}
+        }
     );
 
     controller.enterExamScore(
@@ -170,7 +167,10 @@ TEST(GradingControllerTest, CalculatesWeightedFinalScoreAndLetterGradeForGraduat
 }
 
 
-TEST(GradingControllerTest, CalculatesThresholdResultWhenThresholdIsPassed) {
+TEST(
+    GradingControllerTest,
+    CalculatesThresholdResultWhenThresholdIsPassed
+) {
     UndergraduateStudent student(
         1,
         "Student",
@@ -197,15 +197,12 @@ TEST(GradingControllerTest, CalculatesThresholdResultWhenThresholdIsPassed) {
         2
     );
 
-    ThresholdConfig config;
-
-    config.threshold = 50.0;
-    config.thresholdExamIds = { 1 };
-
-    controller.configureGradingMethod(
+    // Exam 1 is the threshold exam and the threshold value is 50.
+    controller.configureThreshold(
         course,
         StudentType::UNDERGRADUATE,
-        config
+        50.0,
+        { 1 }
     );
 
     controller.enterExamScore(
@@ -228,6 +225,10 @@ TEST(GradingControllerTest, CalculatesThresholdResultWhenThresholdIsPassed) {
         enrollment.getFinalScore().has_value()
     );
 
+    ASSERT_TRUE(
+        enrollment.getLetterGrade().has_value()
+    );
+
     EXPECT_DOUBLE_EQ(
         enrollment.getFinalScore().value(),
         85.0
@@ -240,7 +241,10 @@ TEST(GradingControllerTest, CalculatesThresholdResultWhenThresholdIsPassed) {
 }
 
 
-TEST(GradingControllerTest, CalculatesThresholdResultWhenThresholdIsNotPassed) {
+TEST(
+    GradingControllerTest,
+    CalculatesThresholdResultWhenThresholdIsNotPassed
+) {
     UndergraduateStudent student(
         1,
         "Student",
@@ -267,15 +271,11 @@ TEST(GradingControllerTest, CalculatesThresholdResultWhenThresholdIsNotPassed) {
         2
     );
 
-    ThresholdConfig config;
-
-    config.threshold = 50.0;
-    config.thresholdExamIds = { 1 };
-
-    controller.configureGradingMethod(
+    controller.configureThreshold(
         course,
         StudentType::UNDERGRADUATE,
-        config
+        50.0,
+        { 1 }
     );
 
     controller.enterExamScore(
@@ -298,6 +298,10 @@ TEST(GradingControllerTest, CalculatesThresholdResultWhenThresholdIsNotPassed) {
         enrollment.getFinalScore().has_value()
     );
 
+    ASSERT_TRUE(
+        enrollment.getLetterGrade().has_value()
+    );
+
     EXPECT_DOUBLE_EQ(
         enrollment.getFinalScore().value(),
         40.0
@@ -310,7 +314,10 @@ TEST(GradingControllerTest, CalculatesThresholdResultWhenThresholdIsNotPassed) {
 }
 
 
-TEST(GradingControllerTest, ThrowsWhenGradingPolicyIsNotConfigured) {
+TEST(
+    GradingControllerTest,
+    ThrowsWhenGradingPolicyIsNotConfigured
+) {
     UndergraduateStudent student(
         1,
         "Student",
@@ -358,7 +365,10 @@ TEST(GradingControllerTest, ThrowsWhenGradingPolicyIsNotConfigured) {
 }
 
 
-TEST(GradingControllerTest, ThrowsWhenExamIdDoesNotExist) {
+TEST(
+    GradingControllerTest,
+    ThrowsWhenExamIdDoesNotExist
+) {
     UndergraduateStudent student(
         1,
         "Student",
@@ -396,7 +406,10 @@ TEST(GradingControllerTest, ThrowsWhenExamIdDoesNotExist) {
 }
 
 
-TEST(GradingControllerTest, ThrowsWhenExamScoreIsBelowZero) {
+TEST(
+    GradingControllerTest,
+    ThrowsWhenExamScoreIsBelowZero
+) {
     UndergraduateStudent student(
         1,
         "Student",
@@ -434,7 +447,10 @@ TEST(GradingControllerTest, ThrowsWhenExamScoreIsBelowZero) {
 }
 
 
-TEST(GradingControllerTest, ThrowsWhenExamScoreIsAboveOneHundred) {
+TEST(
+    GradingControllerTest,
+    ThrowsWhenExamScoreIsAboveOneHundred
+) {
     UndergraduateStudent student(
         1,
         "Student",
@@ -472,7 +488,10 @@ TEST(GradingControllerTest, ThrowsWhenExamScoreIsAboveOneHundred) {
 }
 
 
-TEST(GradingControllerTest, ThrowsWhenExamCountIsNotPositive) {
+TEST(
+    GradingControllerTest,
+    ThrowsWhenExamCountIsNotPositive
+) {
     UndergraduateCourse course(
         101,
         "CS301",

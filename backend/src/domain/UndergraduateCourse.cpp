@@ -6,11 +6,12 @@ UndergraduateCourse::UndergraduateCourse(
     const std::string& name,
     int credits
 )
+    // Undergraduate courses require at least DD to pass.
     : Course(
-        id,
-        code,
-        name,
-        credits,
-        PassingPolicy(LetterGrade::DD)
-    ) {
+          id,
+          code,
+          name,
+          credits,
+          PassingPolicy(LetterGrade::DD)
+      ) {
 }

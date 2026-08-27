@@ -2,6 +2,7 @@
 
 #include "domain/Course.h"
 
+// Concrete course type for undergraduate-level courses.
 class UndergraduateCourse : public Course {
 public:
     UndergraduateCourse(

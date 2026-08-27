@@ -4,6 +4,7 @@
 
 #include "strategies/GradeCalculationStrategy.h"
 
+// Calculates the final grade using exam-specific weights.
 class WeightedAverageStrategy : public GradeCalculationStrategy {
 private:
     std::map<int, double> weights;
@@ -16,4 +17,7 @@ public:
     double calculate(
         const std::vector<ExamScore>& scores
     ) const override;
+
+    // Used when persisting the grading configuration.
+    const std::map<int, double>& getWeights() const;
 };

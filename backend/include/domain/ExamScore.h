@@ -2,8 +2,10 @@
 
 class Exam;
 
+// Represents a score associated with a specific exam.
 class ExamScore {
 private:
+    // Non-owning, read-only reference to the related Exam.
     const Exam* exam;
     double score;
 

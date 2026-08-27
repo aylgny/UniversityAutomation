@@ -2,7 +2,6 @@
 
 #include <memory>
 #include <stdexcept>
-#include <type_traits>
 
 #include "domain/Course.h"
 #include "domain/Enrollment.h"
@@ -19,55 +18,67 @@ void GradingController::configureExams(
     Course& course,
     int examCount
 ) const {
-    course.createExams(examCount);
+
+    if (examCount <= 0) {
+        throw std::invalid_argument(
+            "Exam count must be positive."
+        );
+    }
+
+    // Do not recreate Exam objects when the configuration
+    // has not actually changed. Existing ExamScore pointers
+    // remain valid.
+    if (
+        static_cast<int>(
+            course.getExams().size()
+            ) == examCount
+        ) {
+        return;
+    }
+
+    course.createExams(
+        examCount
+    );
 }
 
 
-void GradingController::configureGradingMethod(
+void GradingController::configureWeightedAverage(
     Course& course,
     StudentType studentType,
-    const GradingMethodConfig& config
+    const std::map<int, double>& weights
+) const {
+
+    // A course may use a different grading strategy
+    // for undergraduate and graduate students.
+    CourseGradingPolicy& gradingPolicy =
+        course.getOrCreateGradingPolicy(studentType);
+
+    // The grading policy owns the selected strategy.
+    gradingPolicy.setStrategy(
+        std::make_unique<WeightedAverageStrategy>(
+            weights
+        )
+    );
+}
+
+
+void GradingController::configureThreshold(
+    Course& course,
+    StudentType studentType,
+    double threshold,
+    const std::vector<int>& thresholdExamIds
 ) const {
 
     CourseGradingPolicy& gradingPolicy =
         course.getOrCreateGradingPolicy(studentType);
 
-    std::visit(
-        [&gradingPolicy](const auto& concreteConfig) {
-
-            using ConfigType =
-                std::decay_t<decltype(concreteConfig)>;
-
-            if constexpr (
-                std::is_same_v<
-                ConfigType,
-                WeightedAverageConfig
-                >
-                ) {
-                gradingPolicy.setStrategy(
-                    std::make_unique<
-                    WeightedAverageStrategy
-                    >(concreteConfig.weights)
-                );
-            }
-
-            else if constexpr (
-                std::is_same_v<
-                ConfigType,
-                ThresholdConfig
-                >
-                ) {
-                gradingPolicy.setStrategy(
-                    std::make_unique<
-                    ThresholdStrategy
-                    >(
-                        concreteConfig.threshold,
-                        concreteConfig.thresholdExamIds
-                    )
-                );
-            }
-        },
-        config
+    // Create the threshold strategy using the instructor's configuration
+    // and transfer its ownership to the grading policy.
+    gradingPolicy.setStrategy(
+        std::make_unique<ThresholdStrategy>(
+            threshold,
+            thresholdExamIds
+        )
     );
 }
 
@@ -78,7 +89,8 @@ void GradingController::enterExamScore(
     double score
 ) const {
 
-    Course* course = enrollment.getCourse();
+    Course* course =
+        enrollment.getCourse();
 
     if (course == nullptr) {
         throw std::logic_error(
@@ -88,6 +100,7 @@ void GradingController::enterExamScore(
 
     const Exam* selectedExam = nullptr;
 
+    // Find the exam that belongs to the enrollment's course.
     for (const auto& exam : course->getExams()) {
         if (exam->getId() == examId) {
             selectedExam = exam.get();
@@ -101,6 +114,7 @@ void GradingController::enterExamScore(
         );
     }
 
+    // Enrollment owns the ExamScore and updates it if it already exists.
     enrollment.setExamScore(
         selectedExam,
         score
@@ -128,6 +142,7 @@ void GradingController::calculateFinalResult(
     const StudentType studentType =
         student->getStudentType();
 
+    // Select the grading policy configured for this student type.
     CourseGradingPolicy* gradingPolicy =
         course->getGradingPolicy(studentType);
 
@@ -137,11 +152,14 @@ void GradingController::calculateFinalResult(
         );
     }
 
+    // Numeric grade calculation is delegated to the selected strategy.
     const double finalScore =
         gradingPolicy->calculateGrade(
             enrollment.getExamScores()
         );
 
+    // Letter-grade conversion is delegated to the student's
+    // LetterGradePolicy.
     const LetterGrade letterGrade =
         student->calculateLetterGrade(
             finalScore
