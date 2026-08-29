@@ -1,35 +1,82 @@
 # University Automation
 
-A university automation system developed as a software engineering case study.
+C++ backend, React + TypeScript frontend ve Electron masaüstü arayüzü kullanılarak geliştirilmiş bir üniversite otomasyon sistemidir.
 
-The project focuses on object-oriented analysis and design, extensibility, maintainability, and clean separation of responsibilities.
+Proje; nesne yönelimli analiz ve tasarım prensipleri, modülerlik, genişletilebilirlik, yeniden kullanılabilirlik ve sorumlulukların ayrılması göz önünde bulundurularak geliştirilmiştir.
 
-## Technologies
+---
 
-- C++17
-- CMake
-- GoogleTest
-- Visual Studio
-- React + TypeScript (frontend)
-- Electron (desktop application)
+## İçindekiler
 
-## Current Status
+- [Proje Hakkında](#proje-hakkında)
+- [Özellikler](#özellikler)
+- [Mimari ve Tasarım](#mimari-ve-tasarım)
+- [Kullanılan Teknolojiler](#kullanılan-teknolojiler)
+- [Kurulum ve Çalıştırma](#kurulum-ve-çalıştırma)
+- [Demo Kullanıcıları](#demo-kullanıcıları)
+- [Testler](#testler)
+- [Proje Yapısı](#proje-yapısı)
+- [Demo Senaryoları](#demo-senaryoları)
+- [Notlar](#notlar)
 
-Backend domain logic is implemented and tested.
+---
 
-Current automated test status:
+## Proje Hakkında
 
-- 91 tests passed
-- 0 failed
+Sistem temel olarak iki kullanıcı rolünü desteklemektedir:
 
-The frontend and Electron integration will be added next.
+- Öğrenci
+- Öğretim Üyesi
 
-## Architecture
+Öğrenci tipleri:
 
-The project follows a layered architecture:
+- Lisans
+- Yüksek Lisans
+
+Ders tipleri:
+
+- Lisans Dersi
+- Yüksek Lisans Dersi
+
+Öğrenci tipi, GPA, ders tipi ve seçilen notlandırma yöntemine bağlı akademik kurallar ayrı policy ve strategy sınıfları üzerinden uygulanmaktadır.
+
+---
+
+## Özellikler
+
+### Öğrenci
+
+Öğrenciler:
+
+- Sisteme giriş yapabilir.
+- Açık dersleri görüntüleyebilir.
+- Kredi limitleri dahilinde derslere kayıt olabilir.
+- Kayıtlı oldukları dersleri görüntüleyebilir.
+- Sınav notlarını görüntüleyebilir.
+- Dönem sonu başarı ve harf notlarını görüntüleyebilir.
+
+### Öğretim Üyesi
+
+Öğretim üyeleri:
+
+- Kendilerine atanmış dersleri görüntüleyebilir.
+- Derslere kayıtlı öğrencileri görüntüleyebilir.
+- Derslerin sınav sayılarını belirleyebilir.
+- Öğrenci tipine göre farklı notlandırma yöntemleri tanımlayabilir.
+- Sınav notlarını kaydedebilir.
+- Tüm sınav notları tamamlandıktan sonra dönem sonu başarı ve harf notlarını hesaplayabilir.
+
+---
+
+## Mimari ve Tasarım
+
+Proje katmanlı bir yapıda geliştirilmiştir.
 
 ```text
 React / Electron UI
+        |
+        v
+REST API
         |
         v
 Application Layer
@@ -39,204 +86,3 @@ Domain Model
         |
         v
 Policies / Strategies
-Application Layer
-
-Application controllers coordinate use cases without containing core business rules.
-
-Main controllers:
-
-RegistrationController
-GradingController
-Domain Layer
-
-Main domain objects include:
-
-Person
-Student
-UndergraduateStudent
-GraduateStudent
-Instructor
-Course
-UndergraduateCourse
-GraduateCourse
-Enrollment
-Exam
-ExamScore
-Design Principles
-
-The design applies object-oriented principles including:
-
-Encapsulation
-Abstraction
-Inheritance
-Polymorphism
-Composition
-Single Responsibility Principle
-Open/Closed Principle
-Liskov Substitution Principle
-Interface Segregation Principle
-Dependency Inversion Principle
-
-Inheritance is used for true IS-A relationships, while composition is preferred for configurable and changeable behaviors.
-
-Example:
-
-GraduateStudent IS-A Student
-
-Student HAS-A CreditPolicy
-Student HAS-A LetterGradePolicy
-Design Patterns
-Strategy Pattern
-
-The Strategy Pattern is used for grade calculation algorithms.
-
-GradeCalculationStrategy
-        |
-        +-- WeightedAverageStrategy
-        |
-        +-- ThresholdStrategy
-
-This allows grading algorithms to be changed or extended without modifying the code that uses them.
-
-Policy-Based Design
-
-Changeable academic rules are isolated in policy objects.
-
-Examples:
-
-CreditPolicy
-UndergraduateCreditPolicy
-GraduateCreditPolicy
-UnlimitedCreditPolicy
-LetterGradePolicy
-UndergraduateLetterGradePolicy
-GraduateLetterGradePolicy
-PassingPolicy
-CourseGradingPolicy
-
-This prevents frequently changing academic rules from being hard-coded into domain entities.
-
-Course Registration
-
-Student credit limits are determined according to student type and GPA.
-
-The registration flow delegates credit-rule calculation through the student:
-
-RegistrationController
-        |
-        v
-Student
-        |
-        v
-CreditPolicy
-
-The controller does not know how credit limits are calculated.
-
-Grade Calculation
-
-A course can use different grade calculation strategies for undergraduate and graduate students.
-
-The grading flow is:
-
-GradingController
-        |
-        v
-CourseGradingPolicy
-        |
-        v
-GradeCalculationStrategy
-        |
-        +-- WeightedAverageStrategy
-        |
-        +-- ThresholdStrategy
-
-After the numerical grade is calculated, the student's letter-grade policy determines the final letter grade.
-
-Student
-   |
-   v
-LetterGradePolicy
-Testing
-
-GoogleTest is used for automated testing.
-
-The test suite currently covers:
-
-Undergraduate credit rules
-Graduate credit rules
-Unlimited credit policy
-Credit boundary values
-Undergraduate letter grades
-Graduate letter grades
-Letter-grade boundary values
-Weighted average calculation
-Threshold-based calculation
-Invalid grading configurations
-Course registration
-Duplicate enrollment prevention
-Credit-limit violations
-Grading controller workflows
-Student validation
-Course validation
-Exam score validation
-Enrollment validation
-Passing rules
-Course grading policies
-
-Current result:
-
-91 tests passed
-0 tests failed
-Project Structure
-UniversityAutomation/
-|
-|-- backend/
-|   |
-|   |-- include/
-|   |   |-- application/
-|   |   |-- domain/
-|   |   |-- policies/
-|   |   `-- strategies/
-|   |
-|   |-- src/
-|   |   |-- application/
-|   |   |-- domain/
-|   |   |-- policies/
-|   |   |-- strategies/
-|   |   `-- main.cpp
-|   |
-|   `-- tests/
-|
-|-- frontend/
-|
-|-- electron/
-|
-|-- docs/
-|
-|-- CMakeLists.txt
-|-- CMakePresets.json
-`-- README.md
-Build
-
-The project requires a C++17-compatible compiler and CMake.
-
-Example build process:
-
-cmake -S . -B build
-cmake --build build
-Running Tests
-
-After building the project, the GoogleTest executable can be run using:
-
-UniversityTests
-Future Work
-
-Planned next steps:
-
-React + TypeScript frontend
-Electron desktop integration
-Student course registration interface
-Instructor grading interface
-UI integration with the C++ backend
-Final UML documentation
-Project report and user guide
