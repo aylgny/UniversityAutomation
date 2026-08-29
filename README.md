@@ -278,7 +278,7 @@ Const correctness, smart pointer kullanımı ve ownership ayrımı da tasarım b
 ### Geliştirme Ortamı
 
 - Windows
-- Visual Studio 2022
+- Visual Studio 2026
 - CMake
 - Ninja
 - Node.js
@@ -293,7 +293,7 @@ Const correctness, smart pointer kullanımı ve ownership ayrımı da tasarım b
 Mevcut masaüstü yapılandırması için:
 
 - Windows 10/11
-- Visual Studio 2022
+- Visual Studio 2026
 - Desktop Development with C++ workload
 - CMake 3.16 veya üzeri
 - Ninja
