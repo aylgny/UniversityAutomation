@@ -7,12 +7,12 @@
 #include "domain/LetterGrade.h"
 #include "domain/StudentType.h"
 #include "policies/PassingPolicy.h"
+#include "policies/CourseGradingPolicy.h"
 
 class Exam;
-class CourseGradingPolicy;
 
 // Base domain class representing common course data and behavior.
-// A Course owns its exams and student-type-specific grading policies.
+// A Course owns its exams and stores grading policies by value.
 class Course {
 protected:
     int id;
@@ -23,11 +23,11 @@ protected:
     // Defines the minimum letter grade required to pass this course.
     PassingPolicy passingPolicy;
 
-    // Course owns the Exam objects created for this course.
+    // Course owns Exam objects with stable addresses.
     std::vector<std::unique_ptr<Exam>> exams;
 
     // Stores grading configurations for different student types.
-    std::vector<std::unique_ptr<CourseGradingPolicy>> gradingPolicies;
+    std::vector<CourseGradingPolicy> gradingPolicies;
 
 public:
     Course(
@@ -52,11 +52,12 @@ public:
     void createExams(int examCount);
 
     // Provides read-only access to the owned exams.
-    const std::vector<std::unique_ptr<Exam>>& getExams() const;
+    const std::vector<std::unique_ptr<Exam>>&
+        getExams() const;
 
     // Returns the grading policy for the given student type,
     // or nullptr if no policy has been configured.
-    CourseGradingPolicy* getGradingPolicy(
+    const CourseGradingPolicy* getGradingPolicy(
         StudentType studentType
     ) const;
 

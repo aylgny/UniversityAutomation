@@ -4,7 +4,6 @@
 #include <utility>
 
 #include "domain/Exam.h"
-#include "policies/CourseGradingPolicy.h"
 
 Course::Course(
     int id,
@@ -17,7 +16,7 @@ Course::Course(
     code(code),
     name(name),
     credits(credits),
-    passingPolicy(passingPolicy) {
+    passingPolicy(std::move(passingPolicy)) {
 
     // A valid course must have a positive credit value.
     if (credits <= 0) {
@@ -46,7 +45,6 @@ int Course::getCredits() const {
 }
 
 bool Course::isPassed(LetterGrade grade) const {
-    // Pass/fail logic is delegated to the configured passing policy.
     return passingPolicy.isPassed(grade);
 }
 
@@ -56,7 +54,7 @@ void Course::createExams(int examCount) {
             "Exam count must be positive."
         );
     }
-    // Replace the existing exam configuration.
+
     exams.clear();
 
     for (int i = 1; i <= examCount; ++i) {
@@ -74,40 +72,34 @@ Course::getExams() const {
     return exams;
 }
 
-CourseGradingPolicy* Course::getGradingPolicy(
+const CourseGradingPolicy*
+Course::getGradingPolicy(
     StudentType studentType
 ) const {
 
     for (const auto& policy : gradingPolicies) {
-        if (policy->getStudentType() == studentType) {
-            // Expose a non-owning pointer while Course keeps ownership.
-            return policy.get();
+        if (policy.getStudentType() == studentType) {
+            return &policy;
         }
     }
 
     return nullptr;
 }
 
-CourseGradingPolicy& Course::getOrCreateGradingPolicy(
+CourseGradingPolicy&
+Course::getOrCreateGradingPolicy(
     StudentType studentType
 ) {
-    for (const auto& policy : gradingPolicies) {
-        if (policy->getStudentType() == studentType) {
-            return *policy;
+    for (auto& policy : gradingPolicies) {
+        if (policy.getStudentType() == studentType) {
+            return policy;
         }
     }
-    // Create a new policy when this student type has not been configured yet.
-    auto newPolicy =
-        std::make_unique<CourseGradingPolicy>(
-            studentType
-        );
-    // Keep a reference to the object before transferring unique_ptr ownership.
-    CourseGradingPolicy& policyRef = *newPolicy;
 
-    // Transfer ownership of the policy to the Course.
-    gradingPolicies.push_back(
-        std::move(newPolicy)
+    // Construct the new policy directly inside the vector.
+    gradingPolicies.emplace_back(
+        studentType
     );
 
-    return policyRef;
+    return gradingPolicies.back();
 }

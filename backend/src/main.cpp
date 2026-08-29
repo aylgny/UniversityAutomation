@@ -1,9 +1,15 @@
+/*
+ * Application entry point.
+ * Loads existing data or creates sample data,
+ * then starts the REST API server.
+ */
+
 #include <filesystem>
 #include <iostream>
 #include <string>
 
 #include "application/ApplicationState.h"
-#include "application/ApiServer.h"
+#include "api/ApiServer.h"
 
 
 int main() {
@@ -15,6 +21,7 @@ int main() {
         ApplicationState state;
 
 
+        // Load existing data if available.
         if (
             std::filesystem::exists(
                 dataFile
@@ -30,6 +37,7 @@ int main() {
         }
         else {
 
+            // Create initial sample data.
             state.seedSampleData();
 
             state.saveToFile(
@@ -42,6 +50,7 @@ int main() {
         }
 
 
+        // Start the REST API server.
         ApiServer server(
             state
         );
@@ -57,6 +66,7 @@ int main() {
         const std::exception& exception
         ) {
 
+        // Handle startup or runtime errors.
         std::cerr
             << "Error: "
             << exception.what()

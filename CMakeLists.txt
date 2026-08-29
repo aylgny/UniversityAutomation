@@ -74,7 +74,19 @@ add_library(
     backend/src/application/RegistrationController.cpp
     backend/src/application/GradingController.cpp
     backend/src/application/ApplicationState.cpp
-    backend/src/application/ApiServer.cpp
+    
+    # API
+
+    backend/src/api/ApiServer.cpp
+    backend/src/api/ApiUtils.cpp
+
+    backend/src/api/routes/SystemRoutes.cpp
+    backend/src/api/routes/AuthRoutes.cpp
+    backend/src/api/routes/StudentRoutes.cpp
+    backend/src/api/routes/CourseRoutes.cpp
+    backend/src/api/routes/InstructorRoutes.cpp
+    backend/src/api/routes/EnrollmentRoutes.cpp
+    backend/src/api/routes/GradingRoutes.cpp
 )
 
 

@@ -143,7 +143,7 @@ void GradingController::calculateFinalResult(
         student->getStudentType();
 
     // Select the grading policy configured for this student type.
-    CourseGradingPolicy* gradingPolicy =
+    const CourseGradingPolicy* gradingPolicy =
         course->getGradingPolicy(studentType);
 
     if (gradingPolicy == nullptr) {

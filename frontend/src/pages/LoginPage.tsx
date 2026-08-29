@@ -1,6 +1,15 @@
+/*
+ * Displays the login form and authenticates predefined demo users.
+ * Redirects the user to the correct dashboard after login.
+ */
+
 import {
   useState,
 } from "react";
+
+import {
+  useNavigate,
+} from "react-router";
 
 import {
   login,
@@ -21,6 +30,10 @@ interface LoginPageProps {
 function LoginPage({
   onLogin,
 }: LoginPageProps) {
+
+  const navigate =
+    useNavigate();
+
 
   const [
     username,
@@ -63,6 +76,7 @@ function LoginPage({
         !username.trim() ||
         !password
       ) {
+
         setError(
           "Username and password are required."
         );
@@ -89,8 +103,21 @@ function LoginPage({
           );
 
 
+        // Store the logged-in user in App.
         await onLogin(
           response.user
+        );
+
+
+        // Redirect to the correct dashboard.
+        navigate(
+          response.user.role ===
+          "STUDENT"
+            ? "/student"
+            : "/instructor",
+          {
+            replace: true,
+          }
         );
 
       }
@@ -163,10 +190,14 @@ function LoginPage({
             <input
               id="username"
               type="text"
-              value={username}
+              value={
+                username
+              }
               placeholder="Enter username"
               autoComplete="username"
-              disabled={loading}
+              disabled={
+                loading
+              }
               onChange={
                 (event) =>
                   setUsername(
@@ -189,10 +220,14 @@ function LoginPage({
             <input
               id="password"
               type="password"
-              value={password}
+              value={
+                password
+              }
               placeholder="Enter password"
               autoComplete="current-password"
-              disabled={loading}
+              disabled={
+                loading
+              }
               onChange={
                 (event) =>
                   setPassword(
@@ -216,11 +251,15 @@ function LoginPage({
           <button
             className="login-submit-button"
             type="submit"
-            disabled={loading}
+            disabled={
+              loading
+            }
           >
+
             {loading
               ? "Signing in..."
               : "Sign In"}
+
           </button>
 
 

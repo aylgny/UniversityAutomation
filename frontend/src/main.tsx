@@ -1,10 +1,38 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.tsx'
+/*
+ * Application entry point.
+ * Provides hash-based routing for the Electron application.
+ */
 
-createRoot(document.getElementById('root')!).render(
+import {
+  StrictMode,
+} from "react";
+
+import {
+  createRoot,
+} from "react-dom/client";
+
+import {
+  HashRouter,
+} from "react-router";
+
+import "./index.css";
+
+import App from "./App";
+
+
+createRoot(
+  document.getElementById(
+    "root"
+  )!
+).render(
+
   <StrictMode>
-    <App />
-  </StrictMode>,
-)
+
+    <HashRouter>
+
+      <App />
+
+    </HashRouter>
+
+  </StrictMode>
+);

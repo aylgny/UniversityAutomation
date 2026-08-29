@@ -914,7 +914,7 @@ void ApplicationState::saveToFile(
         studentTypes
             ) {
 
-            CourseGradingPolicy*
+            const CourseGradingPolicy*
                 gradingPolicy =
                 course
                 ->getGradingPolicy(
@@ -1137,3 +1137,7 @@ void ApplicationState::saveToFile(
     outputFile <<
         data.dump(4);
 }
+
+//ApplicationState uygulamadaki ana domain nesnelerinin ownership'ini tutuyor.
+//Verileri unique_ptr ile yönetiyor, ID'ler üzerinden nesneler arası ilişkileri
+//kuruyor ve uygulama state'ini JSON formatında serialize/deserialize ediyor.
