@@ -160,6 +160,13 @@ function GradeManagement({
 
 
   const [
+    isSaving,
+    setIsSaving,
+  ] =
+    useState(false);
+
+
+  const [
     isCalculating,
     setIsCalculating,
   ] =
@@ -214,7 +221,10 @@ function GradeManagement({
       .Graduate;
 
 
-  // Load real enrollments for selected course.
+  // =====================================================
+  // LOAD STUDENTS AND EXISTING SCORES
+  // =====================================================
+
   useEffect(
     () => {
 
@@ -252,6 +262,12 @@ function GradeManagement({
               Record<
                 number,
                 string[]
+              > = {};
+
+            const initialResults:
+              Record<
+                number,
+                GradeResult
               > = {};
 
 
@@ -324,6 +340,7 @@ function GradeManagement({
                   index <
                   studentScores.length
                 ) {
+
                   studentScores[
                     index
                   ] =
@@ -338,6 +355,31 @@ function GradeManagement({
                 student.id
               ] =
                 studentScores;
+
+
+              // Restore an already calculated result.
+              if (
+                enrollment.finalScore !==
+                  null &&
+                enrollment.letterGrade !==
+                  null &&
+                enrollment.passed !==
+                  null
+              ) {
+
+                initialResults[
+                  student.id
+                ] = {
+                  finalScore:
+                    enrollment.finalScore,
+
+                  letterGrade:
+                    enrollment.letterGrade,
+
+                  passed:
+                    enrollment.passed,
+                };
+              }
             }
 
 
@@ -350,7 +392,7 @@ function GradeManagement({
             );
 
             setResults(
-              {}
+              initialResults
             );
 
           }
@@ -385,6 +427,10 @@ function GradeManagement({
   );
 
 
+  // =====================================================
+  // SCORE INPUT
+  // =====================================================
+
   const handleScoreChange = (
     studentId: number,
     examIndex: number,
@@ -414,6 +460,10 @@ function GradeManagement({
     );
 
 
+    /*
+     * A changed score may invalidate a previously
+     * calculated final result.
+     */
     setResults(
       (
         previousResults
@@ -440,7 +490,204 @@ function GradeManagement({
   };
 
 
-  const validateStudentScores = (
+  // =====================================================
+  // VALIDATION FOR SAVING
+  // =====================================================
+
+  const validateEnteredScore = (
+    score: string
+  ): number | null => {
+
+    if (
+      score.trim() ===
+      ""
+    ) {
+      return null;
+    }
+
+
+    const numericScore =
+      Number(
+        score
+      );
+
+
+    if (
+      Number.isNaN(
+        numericScore
+      ) ||
+      numericScore < 0 ||
+      numericScore > 100
+    ) {
+      throw new Error(
+        "Exam scores must be between 0 and 100."
+      );
+    }
+
+
+    return numericScore;
+  };
+
+
+  // =====================================================
+  // SAVE PARTIAL SCORES
+  // =====================================================
+
+  const handleSaveScores =
+    async () => {
+
+      if (
+        !selectedCourse
+      ) {
+
+        setMessageType(
+          "error"
+        );
+
+        setMessage(
+          "Please select a course."
+        );
+
+        return;
+      }
+
+
+      if (
+        students.length ===
+        0
+      ) {
+
+        setMessageType(
+          "error"
+        );
+
+        setMessage(
+          "No enrolled students were found for this course."
+        );
+
+        return;
+      }
+
+
+      try {
+
+        setIsSaving(
+          true
+        );
+
+        setMessage(
+          ""
+        );
+
+
+        let savedScoreCount =
+          0;
+
+
+        for (
+          const student of
+          students
+        ) {
+
+          const studentScores =
+            scores[
+              student.id
+            ] ?? [];
+
+
+          for (
+            let index = 0;
+            index <
+            studentScores.length;
+            index++
+          ) {
+
+            const numericScore =
+              validateEnteredScore(
+                studentScores[
+                  index
+                ]
+              );
+
+
+            /*
+             * Empty inputs are intentionally skipped.
+             * This allows Exam 1 to be saved before
+             * Exam 2 and Exam 3 have taken place.
+             */
+            if (
+              numericScore ===
+              null
+            ) {
+              continue;
+            }
+
+
+            await enterExamScore(
+              student.enrollmentId,
+              index + 1,
+              numericScore
+            );
+
+
+            savedScoreCount++;
+          }
+        }
+
+
+        if (
+          savedScoreCount ===
+          0
+        ) {
+
+          setMessageType(
+            "error"
+          );
+
+          setMessage(
+            "There are no exam scores to save."
+          );
+
+          return;
+        }
+
+
+        setMessageType(
+          "success"
+        );
+
+        setMessage(
+          `${selectedCourse.code} exam scores saved successfully.`
+        );
+
+      }
+      catch (error) {
+
+        setMessageType(
+          "error"
+        );
+
+        setMessage(
+          error instanceof Error
+            ? error.message
+            : "Could not save exam scores."
+        );
+
+      }
+      finally {
+
+        setIsSaving(
+          false
+        );
+      }
+    };
+
+
+  // =====================================================
+  // VALIDATION FOR FINAL GRADE CALCULATION
+  // =====================================================
+
+  const validateAllStudentScores = (
     student:
       StudentRecord
   ): number[] | null => {
@@ -475,7 +722,7 @@ function GradeManagement({
       );
 
       setMessage(
-        `All exam scores must be entered for ${student.name}.`
+        `All exam scores must be entered for ${student.name} before final grades can be calculated.`
       );
 
       return null;
@@ -522,6 +769,10 @@ function GradeManagement({
   };
 
 
+  // =====================================================
+  // CALCULATE FINAL GRADES
+  // =====================================================
+
   const handleCalculateAll =
     async () => {
 
@@ -565,13 +816,17 @@ function GradeManagement({
         > = {};
 
 
+      /*
+       * Final grade calculation is only allowed
+       * when every required exam score is present.
+       */
       for (
         const student of
         students
       ) {
 
         const numericScores =
-          validateStudentScores(
+          validateAllStudentScores(
             student
           );
 
@@ -619,7 +874,11 @@ function GradeManagement({
             ];
 
 
-          // Persist every exam score through REST.
+          /*
+           * Save the values currently visible in the UI
+           * before calculating. This prevents calculation
+           * from using an older persisted score.
+           */
           for (
             let index = 0;
             index <
@@ -637,7 +896,6 @@ function GradeManagement({
           }
 
 
-          // Let the C++ backend calculate the result.
           const result =
             await calculateFinalResult(
               student.enrollmentId
@@ -647,6 +905,7 @@ function GradeManagement({
           calculatedResults[
             student.id
           ] = {
+
             finalScore:
               result.finalScore,
 
@@ -669,7 +928,7 @@ function GradeManagement({
         );
 
         setMessage(
-          `${selectedCourse.code} final grades calculated successfully by the C++ backend.`
+          `${selectedCourse.code} final grades calculated successfully.`
         );
 
       }
@@ -682,7 +941,7 @@ function GradeManagement({
         setMessage(
           error instanceof Error
             ? error.message
-            : "Could not communicate with the C++ backend."
+            : "Could not calculate final grades."
         );
 
       }
@@ -694,6 +953,10 @@ function GradeManagement({
       }
     };
 
+
+  // =====================================================
+  // COURSE CHANGE
+  // =====================================================
 
   const handleCourseChange = (
     courseId: number
@@ -721,6 +984,10 @@ function GradeManagement({
   };
 
 
+  // =====================================================
+  // UI
+  // =====================================================
+
   return (
     <div className="page">
 
@@ -744,8 +1011,10 @@ function GradeManagement({
 
 
           <p>
-            Enter exam scores and
-            calculate final grades.
+            Enter and save exam scores
+            throughout the semester,
+            then calculate final grades
+            when all exams are completed.
           </p>
 
         </div>
@@ -1040,6 +1309,7 @@ function GradeManagement({
                               }
                               placeholder="0-100"
                               disabled={
+                                isSaving ||
                                 isCalculating
                               }
                               onChange={
@@ -1124,11 +1394,31 @@ function GradeManagement({
       <div className="grade-management-actions">
 
         <button
+          className="secondary-action-button"
+          onClick={
+            handleSaveScores
+          }
+          disabled={
+            isSaving ||
+            isCalculating ||
+            loadingStudents ||
+            students.length ===
+            0
+          }
+        >
+          {isSaving
+            ? "Saving..."
+            : "Save Scores"}
+        </button>
+
+
+        <button
           className="primary-action-button"
           onClick={
             handleCalculateAll
           }
           disabled={
+            isSaving ||
             isCalculating ||
             loadingStudents ||
             students.length ===
@@ -1137,7 +1427,7 @@ function GradeManagement({
         >
           {isCalculating
             ? "Calculating..."
-            : "Save Scores & Calculate Final Grades"}
+            : "Calculate Final Grades"}
         </button>
 
       </div>

@@ -46,7 +46,6 @@ TEST(
         2
     );
 
-    // Configure exam weights directly without a separate config object.
     controller.configureWeightedAverage(
         course,
         StudentType::UNDERGRADUATE,
@@ -73,20 +72,28 @@ TEST(
     );
 
     ASSERT_TRUE(
-        enrollment.getFinalScore().has_value()
+        enrollment
+        .getFinalScore()
+        .has_value()
     );
 
     ASSERT_TRUE(
-        enrollment.getLetterGrade().has_value()
+        enrollment
+        .getLetterGrade()
+        .has_value()
     );
 
     EXPECT_DOUBLE_EQ(
-        enrollment.getFinalScore().value(),
+        enrollment
+        .getFinalScore()
+        .value(),
         82.0
     );
 
     EXPECT_EQ(
-        enrollment.getLetterGrade().value(),
+        enrollment
+        .getLetterGrade()
+        .value(),
         LetterGrade::BA
     );
 }
@@ -148,20 +155,28 @@ TEST(
     );
 
     ASSERT_TRUE(
-        enrollment.getFinalScore().has_value()
+        enrollment
+        .getFinalScore()
+        .has_value()
     );
 
     ASSERT_TRUE(
-        enrollment.getLetterGrade().has_value()
+        enrollment
+        .getLetterGrade()
+        .has_value()
     );
 
     EXPECT_DOUBLE_EQ(
-        enrollment.getFinalScore().value(),
+        enrollment
+        .getFinalScore()
+        .value(),
         90.0
     );
 
     EXPECT_EQ(
-        enrollment.getLetterGrade().value(),
+        enrollment
+        .getLetterGrade()
+        .value(),
         LetterGrade::BA
     );
 }
@@ -197,7 +212,6 @@ TEST(
         2
     );
 
-    // Exam 1 is the threshold exam and the threshold value is 50.
     controller.configureThreshold(
         course,
         StudentType::UNDERGRADUATE,
@@ -222,20 +236,28 @@ TEST(
     );
 
     ASSERT_TRUE(
-        enrollment.getFinalScore().has_value()
+        enrollment
+        .getFinalScore()
+        .has_value()
     );
 
     ASSERT_TRUE(
-        enrollment.getLetterGrade().has_value()
+        enrollment
+        .getLetterGrade()
+        .has_value()
     );
 
     EXPECT_DOUBLE_EQ(
-        enrollment.getFinalScore().value(),
+        enrollment
+        .getFinalScore()
+        .value(),
         85.0
     );
 
     EXPECT_EQ(
-        enrollment.getLetterGrade().value(),
+        enrollment
+        .getLetterGrade()
+        .value(),
         LetterGrade::BA
     );
 }
@@ -295,20 +317,28 @@ TEST(
     );
 
     ASSERT_TRUE(
-        enrollment.getFinalScore().has_value()
+        enrollment
+        .getFinalScore()
+        .has_value()
     );
 
     ASSERT_TRUE(
-        enrollment.getLetterGrade().has_value()
+        enrollment
+        .getLetterGrade()
+        .has_value()
     );
 
     EXPECT_DOUBLE_EQ(
-        enrollment.getFinalScore().value(),
+        enrollment
+        .getFinalScore()
+        .value(),
         40.0
     );
 
     EXPECT_EQ(
-        enrollment.getLetterGrade().value(),
+        enrollment
+        .getLetterGrade()
+        .value(),
         LetterGrade::DD
     );
 }
@@ -507,5 +537,293 @@ TEST(
             0
         ),
         std::invalid_argument
+    );
+}
+
+
+// =========================================================
+// SCORE SAVING AND FINAL CALCULATION TESTS
+// =========================================================
+
+TEST(
+    GradingControllerTest,
+    EnteringExamScoreDoesNotCalculateFinalResult
+) {
+    UndergraduateStudent student(
+        1,
+        "Student",
+        3.20
+    );
+
+    UndergraduateCourse course(
+        101,
+        "CS301",
+        "Software Engineering",
+        5
+    );
+
+    Enrollment enrollment(
+        1,
+        &student,
+        &course
+    );
+
+    GradingController controller;
+
+    controller.configureExams(
+        course,
+        2
+    );
+
+    controller.configureWeightedAverage(
+        course,
+        StudentType::UNDERGRADUATE,
+        {
+            {1, 0.40},
+            {2, 0.60}
+        }
+    );
+
+    controller.enterExamScore(
+        enrollment,
+        1,
+        75.0
+    );
+
+    ASSERT_EQ(
+        enrollment
+        .getExamScores()
+        .size(),
+        1
+    );
+
+    EXPECT_DOUBLE_EQ(
+        enrollment
+        .getExamScores()[0]
+        .getScore(),
+        75.0
+    );
+
+    EXPECT_FALSE(
+        enrollment
+        .getFinalScore()
+        .has_value()
+    );
+
+    EXPECT_FALSE(
+        enrollment
+        .getLetterGrade()
+        .has_value()
+    );
+}
+
+
+TEST(
+    GradingControllerTest,
+    ThrowsWhenNotAllExamScoresAreEntered
+) {
+    UndergraduateStudent student(
+        1,
+        "Student",
+        3.20
+    );
+
+    UndergraduateCourse course(
+        101,
+        "CS301",
+        "Software Engineering",
+        5
+    );
+
+    Enrollment enrollment(
+        1,
+        &student,
+        &course
+    );
+
+    GradingController controller;
+
+    controller.configureExams(
+        course,
+        2
+    );
+
+    controller.configureWeightedAverage(
+        course,
+        StudentType::UNDERGRADUATE,
+        {
+            {1, 0.40},
+            {2, 0.60}
+        }
+    );
+
+    controller.enterExamScore(
+        enrollment,
+        1,
+        80.0
+    );
+
+    EXPECT_THROW(
+        controller.calculateFinalResult(
+            enrollment
+        ),
+        std::logic_error
+    );
+
+    EXPECT_FALSE(
+        enrollment
+        .getFinalScore()
+        .has_value()
+    );
+
+    EXPECT_FALSE(
+        enrollment
+        .getLetterGrade()
+        .has_value()
+    );
+}
+
+
+TEST(
+    GradingControllerTest,
+    AllowsFinalCalculationAfterAllExamScoresAreEntered
+) {
+    UndergraduateStudent student(
+        1,
+        "Student",
+        3.20
+    );
+
+    UndergraduateCourse course(
+        101,
+        "CS301",
+        "Software Engineering",
+        5
+    );
+
+    Enrollment enrollment(
+        1,
+        &student,
+        &course
+    );
+
+    GradingController controller;
+
+    controller.configureExams(
+        course,
+        2
+    );
+
+    controller.configureWeightedAverage(
+        course,
+        StudentType::UNDERGRADUATE,
+        {
+            {1, 0.40},
+            {2, 0.60}
+        }
+    );
+
+    controller.enterExamScore(
+        enrollment,
+        1,
+        70.0
+    );
+
+    controller.enterExamScore(
+        enrollment,
+        2,
+        90.0
+    );
+
+    EXPECT_NO_THROW(
+        controller.calculateFinalResult(
+            enrollment
+        )
+    );
+
+    ASSERT_TRUE(
+        enrollment
+        .getFinalScore()
+        .has_value()
+    );
+
+    ASSERT_TRUE(
+        enrollment
+        .getLetterGrade()
+        .has_value()
+    );
+
+    EXPECT_DOUBLE_EQ(
+        enrollment
+        .getFinalScore()
+        .value(),
+        82.0
+    );
+}
+
+
+// =========================================================
+// EXAM CONFIGURATION TESTS
+// =========================================================
+
+TEST(
+    GradingControllerTest,
+    DoesNotRecreateExamsWhenExamCountIsUnchanged
+) {
+    UndergraduateCourse course(
+        101,
+        "CS301",
+        "Software Engineering",
+        5
+    );
+
+    GradingController controller;
+
+    controller.configureExams(
+        course,
+        2
+    );
+
+    ASSERT_EQ(
+        course
+        .getExams()
+        .size(),
+        2
+    );
+
+    const Exam* firstExam =
+        course
+        .getExams()[0]
+        .get();
+
+    const Exam* secondExam =
+        course
+        .getExams()[1]
+        .get();
+
+    controller.configureExams(
+        course,
+        2
+    );
+
+    ASSERT_EQ(
+        course
+        .getExams()
+        .size(),
+        2
+    );
+
+    EXPECT_EQ(
+        course
+        .getExams()[0]
+        .get(),
+        firstExam
+    );
+
+    EXPECT_EQ(
+        course
+        .getExams()[1]
+        .get(),
+        secondExam
     );
 }

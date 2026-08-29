@@ -6,13 +6,76 @@
 #include "domain/ExamScore.h"
 #include "domain/Enrollment.h"
 #include "domain/LetterGrade.h"
+#include "domain/Person.h"
+#include "domain/Instructor.h"
 
+
+// =========================================================
+// PERSON VALIDATION TESTS
+// =========================================================
+
+TEST(
+    PersonValidationTest,
+    ThrowsWhenIdIsZero
+) {
+    EXPECT_THROW(
+        Person person(
+            0,
+            "Person"
+        ),
+        std::invalid_argument
+    );
+}
+
+
+TEST(
+    PersonValidationTest,
+    ThrowsWhenIdIsNegative
+) {
+    EXPECT_THROW(
+        Person person(
+            -1,
+            "Person"
+        ),
+        std::invalid_argument
+    );
+}
+
+
+TEST(
+    PersonValidationTest,
+    ThrowsWhenNameIsEmpty
+) {
+    EXPECT_THROW(
+        Person person(
+            1,
+            ""
+        ),
+        std::invalid_argument
+    );
+}
+
+
+TEST(
+    PersonValidationTest,
+    AcceptsValidPerson
+) {
+    EXPECT_NO_THROW(
+        Person person(
+            1,
+            "Person"
+        )
+    );
+}
 
 // =========================================================
 // STUDENT VALIDATION TESTS
 // =========================================================
 
-TEST(StudentValidationTest, ThrowsWhenGpaIsBelowZero) {
+TEST(
+    StudentValidationTest,
+    ThrowsWhenGpaIsBelowZero
+) {
     EXPECT_THROW(
         UndergraduateStudent student(
             1,
@@ -24,7 +87,10 @@ TEST(StudentValidationTest, ThrowsWhenGpaIsBelowZero) {
 }
 
 
-TEST(StudentValidationTest, ThrowsWhenGpaIsAboveFour) {
+TEST(
+    StudentValidationTest,
+    ThrowsWhenGpaIsAboveFour
+) {
     EXPECT_THROW(
         UndergraduateStudent student(
             1,
@@ -36,7 +102,10 @@ TEST(StudentValidationTest, ThrowsWhenGpaIsAboveFour) {
 }
 
 
-TEST(StudentValidationTest, AcceptsBoundaryGpaValues) {
+TEST(
+    StudentValidationTest,
+    AcceptsBoundaryGpaValues
+) {
     EXPECT_NO_THROW(
         UndergraduateStudent student1(
             1,
@@ -55,7 +124,10 @@ TEST(StudentValidationTest, AcceptsBoundaryGpaValues) {
 }
 
 
-TEST(StudentValidationTest, ThrowsWhenLetterGradeScoreIsBelowZero) {
+TEST(
+    StudentValidationTest,
+    ThrowsWhenLetterGradeScoreIsBelowZero
+) {
     UndergraduateStudent student(
         1,
         "Student",
@@ -63,13 +135,18 @@ TEST(StudentValidationTest, ThrowsWhenLetterGradeScoreIsBelowZero) {
     );
 
     EXPECT_THROW(
-        student.calculateLetterGrade(-1.0),
+        student.calculateLetterGrade(
+            -1.0
+        ),
         std::invalid_argument
     );
 }
 
 
-TEST(StudentValidationTest, ThrowsWhenLetterGradeScoreIsAboveOneHundred) {
+TEST(
+    StudentValidationTest,
+    ThrowsWhenLetterGradeScoreIsAboveOneHundred
+) {
     UndergraduateStudent student(
         1,
         "Student",
@@ -77,7 +154,9 @@ TEST(StudentValidationTest, ThrowsWhenLetterGradeScoreIsAboveOneHundred) {
     );
 
     EXPECT_THROW(
-        student.calculateLetterGrade(101.0),
+        student.calculateLetterGrade(
+            101.0
+        ),
         std::invalid_argument
     );
 }
@@ -87,7 +166,10 @@ TEST(StudentValidationTest, ThrowsWhenLetterGradeScoreIsAboveOneHundred) {
 // COURSE VALIDATION TESTS
 // =========================================================
 
-TEST(CourseValidationTest, ThrowsWhenCreditsAreZero) {
+TEST(
+    CourseValidationTest,
+    ThrowsWhenCreditsAreZero
+) {
     EXPECT_THROW(
         UndergraduateCourse course(
             101,
@@ -100,7 +182,10 @@ TEST(CourseValidationTest, ThrowsWhenCreditsAreZero) {
 }
 
 
-TEST(CourseValidationTest, ThrowsWhenCreditsAreNegative) {
+TEST(
+    CourseValidationTest,
+    ThrowsWhenCreditsAreNegative
+) {
     EXPECT_THROW(
         UndergraduateCourse course(
             101,
@@ -113,11 +198,108 @@ TEST(CourseValidationTest, ThrowsWhenCreditsAreNegative) {
 }
 
 
+TEST(
+    CourseValidationTest,
+    ThrowsWhenIdIsNotPositive
+) {
+    EXPECT_THROW(
+        UndergraduateCourse course(
+            0,
+            "CS101",
+            "Course",
+            5
+        ),
+        std::invalid_argument
+    );
+}
+
+
+TEST(
+    CourseValidationTest,
+    ThrowsWhenCodeIsEmpty
+) {
+    EXPECT_THROW(
+        UndergraduateCourse course(
+            101,
+            "",
+            "Course",
+            5
+        ),
+        std::invalid_argument
+    );
+}
+
+
+TEST(
+    CourseValidationTest,
+    ThrowsWhenNameIsEmpty
+) {
+    EXPECT_THROW(
+        UndergraduateCourse course(
+            101,
+            "CS101",
+            "",
+            5
+        ),
+        std::invalid_argument
+    );
+}
+
+
+
+// =========================================================
+// EXAM VALIDATION TESTS
+// =========================================================
+
+TEST(
+    ExamValidationTest,
+    ThrowsWhenIdIsNotPositive
+) {
+    EXPECT_THROW(
+        Exam exam(
+            0,
+            "Midterm"
+        ),
+        std::invalid_argument
+    );
+}
+
+
+TEST(
+    ExamValidationTest,
+    ThrowsWhenNameIsEmpty
+) {
+    EXPECT_THROW(
+        Exam exam(
+            1,
+            ""
+        ),
+        std::invalid_argument
+    );
+}
+
+
+TEST(
+    ExamValidationTest,
+    AcceptsValidExam
+) {
+    EXPECT_NO_THROW(
+        Exam exam(
+            1,
+            "Midterm"
+        )
+    );
+}
+
+
 // =========================================================
 // EXAM SCORE VALIDATION TESTS
 // =========================================================
 
-TEST(ExamScoreValidationTest, ThrowsWhenExamIsNull) {
+TEST(
+    ExamScoreValidationTest,
+    ThrowsWhenExamIsNull
+) {
     EXPECT_THROW(
         ExamScore score(
             nullptr,
@@ -128,7 +310,10 @@ TEST(ExamScoreValidationTest, ThrowsWhenExamIsNull) {
 }
 
 
-TEST(ExamScoreValidationTest, ThrowsWhenScoreIsBelowZero) {
+TEST(
+    ExamScoreValidationTest,
+    ThrowsWhenScoreIsBelowZero
+) {
     Exam exam(
         1,
         "Midterm"
@@ -144,7 +329,10 @@ TEST(ExamScoreValidationTest, ThrowsWhenScoreIsBelowZero) {
 }
 
 
-TEST(ExamScoreValidationTest, ThrowsWhenScoreIsAboveOneHundred) {
+TEST(
+    ExamScoreValidationTest,
+    ThrowsWhenScoreIsAboveOneHundred
+) {
     Exam exam(
         1,
         "Midterm"
@@ -160,7 +348,10 @@ TEST(ExamScoreValidationTest, ThrowsWhenScoreIsAboveOneHundred) {
 }
 
 
-TEST(ExamScoreValidationTest, SetScoreValidatesNewValue) {
+TEST(
+    ExamScoreValidationTest,
+    SetScoreValidatesNewValue
+) {
     Exam exam(
         1,
         "Midterm"
@@ -172,7 +363,9 @@ TEST(ExamScoreValidationTest, SetScoreValidatesNewValue) {
     );
 
     EXPECT_THROW(
-        score.setScore(120.0),
+        score.setScore(
+            120.0
+        ),
         std::invalid_argument
     );
 
@@ -187,7 +380,10 @@ TEST(ExamScoreValidationTest, SetScoreValidatesNewValue) {
 // ENROLLMENT VALIDATION TESTS
 // =========================================================
 
-TEST(EnrollmentValidationTest, ThrowsWhenStudentIsNull) {
+TEST(
+    EnrollmentValidationTest,
+    ThrowsWhenStudentIsNull
+) {
     UndergraduateCourse course(
         101,
         "CS101",
@@ -206,7 +402,10 @@ TEST(EnrollmentValidationTest, ThrowsWhenStudentIsNull) {
 }
 
 
-TEST(EnrollmentValidationTest, ThrowsWhenCourseIsNull) {
+TEST(
+    EnrollmentValidationTest,
+    ThrowsWhenCourseIsNull
+) {
     UndergraduateStudent student(
         1,
         "Student",
@@ -224,7 +423,10 @@ TEST(EnrollmentValidationTest, ThrowsWhenCourseIsNull) {
 }
 
 
-TEST(EnrollmentValidationTest, ThrowsWhenFinalScoreIsBelowZero) {
+TEST(
+    EnrollmentValidationTest,
+    ThrowsWhenFinalScoreIsBelowZero
+) {
     UndergraduateStudent student(
         1,
         "Student",
@@ -245,13 +447,18 @@ TEST(EnrollmentValidationTest, ThrowsWhenFinalScoreIsBelowZero) {
     );
 
     EXPECT_THROW(
-        enrollment.setFinalScore(-1.0),
+        enrollment.setFinalScore(
+            -1.0
+        ),
         std::invalid_argument
     );
 }
 
 
-TEST(EnrollmentValidationTest, ThrowsWhenFinalScoreIsAboveOneHundred) {
+TEST(
+    EnrollmentValidationTest,
+    ThrowsWhenFinalScoreIsAboveOneHundred
+) {
     UndergraduateStudent student(
         1,
         "Student",
@@ -272,13 +479,18 @@ TEST(EnrollmentValidationTest, ThrowsWhenFinalScoreIsAboveOneHundred) {
     );
 
     EXPECT_THROW(
-        enrollment.setFinalScore(101.0),
+        enrollment.setFinalScore(
+            101.0
+        ),
         std::invalid_argument
     );
 }
 
 
-TEST(EnrollmentValidationTest, UpdatingExistingExamScoreDoesNotCreateDuplicate) {
+TEST(
+    EnrollmentValidationTest,
+    UpdatingExistingExamScoreDoesNotCreateDuplicate
+) {
     UndergraduateStudent student(
         1,
         "Student",
@@ -314,12 +526,153 @@ TEST(EnrollmentValidationTest, UpdatingExistingExamScoreDoesNotCreateDuplicate) 
     );
 
     ASSERT_EQ(
-        enrollment.getExamScores().size(),
+        enrollment
+        .getExamScores()
+        .size(),
         1
     );
 
     EXPECT_DOUBLE_EQ(
-        enrollment.getExamScores()[0].getScore(),
+        enrollment
+        .getExamScores()[0]
+        .getScore(),
         85.0
+    );
+}
+
+
+TEST(
+    EnrollmentValidationTest,
+    UpdatingExamScoreInvalidatesCalculatedFinalResult
+) {
+    UndergraduateStudent student(
+        1,
+        "Student",
+        3.0
+    );
+
+    UndergraduateCourse course(
+        101,
+        "CS101",
+        "Course",
+        5
+    );
+
+    Exam exam(
+        1,
+        "Midterm"
+    );
+
+    Enrollment enrollment(
+        1,
+        &student,
+        &course
+    );
+
+    enrollment.setExamScore(
+        &exam,
+        70.0
+    );
+
+    enrollment.setFinalScore(
+        70.0
+    );
+
+    enrollment.setLetterGrade(
+        LetterGrade::BB
+    );
+
+    ASSERT_TRUE(
+        enrollment
+        .getFinalScore()
+        .has_value()
+    );
+
+    ASSERT_TRUE(
+        enrollment
+        .getLetterGrade()
+        .has_value()
+    );
+
+    enrollment.setExamScore(
+        &exam,
+        80.0
+    );
+
+    EXPECT_FALSE(
+        enrollment
+        .getFinalScore()
+        .has_value()
+    );
+
+    EXPECT_FALSE(
+        enrollment
+        .getLetterGrade()
+        .has_value()
+    );
+}
+
+
+TEST(
+    EnrollmentValidationTest,
+    AddingExamScoreInvalidatesCalculatedFinalResult
+) {
+    UndergraduateStudent student(
+        1,
+        "Student",
+        3.0
+    );
+
+    UndergraduateCourse course(
+        101,
+        "CS101",
+        "Course",
+        5
+    );
+
+    Exam exam1(
+        1,
+        "Exam 1"
+    );
+
+    Exam exam2(
+        2,
+        "Exam 2"
+    );
+
+    Enrollment enrollment(
+        1,
+        &student,
+        &course
+    );
+
+    enrollment.setExamScore(
+        &exam1,
+        70.0
+    );
+
+    enrollment.setFinalScore(
+        70.0
+    );
+
+    enrollment.setLetterGrade(
+        LetterGrade::BB
+    );
+
+    enrollment.setExamScore(
+        &exam2,
+        80.0
+    );
+
+    EXPECT_FALSE(
+        enrollment
+        .getFinalScore()
+        .has_value()
+    );
+
+    EXPECT_FALSE(
+        enrollment
+        .getLetterGrade()
+        .has_value()
     );
 }

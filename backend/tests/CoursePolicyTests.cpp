@@ -229,7 +229,76 @@ TEST(CourseGradingPolicyTest, DelegatesCalculationToConfiguredStrategy) {
 // STUDENT TYPE SPECIFIC GRADING POLICY TESTS
 // =========================================================
 
-TEST(CourseTest, CreatesSeparateGradingPoliciesForStudentTypes) {
+TEST(
+    CourseTest,
+    CreatesSeparateGradingPoliciesForStudentTypes
+) {
+    UndergraduateCourse course(
+        101,
+        "CS101",
+        "Course",
+        5
+    );
+
+    /*
+     * Create both grading policies first.
+     *
+     * Course stores CourseGradingPolicy objects inside a vector.
+     * Adding a second element may reallocate the vector, so references
+     * obtained before all insertions are complete should not be kept.
+     */
+    course.getOrCreateGradingPolicy(
+        StudentType::UNDERGRADUATE
+    );
+
+    course.getOrCreateGradingPolicy(
+        StudentType::GRADUATE
+    );
+
+    /*
+     * Retrieve the policies after the insertions are complete.
+     */
+    const CourseGradingPolicy* undergraduatePolicy =
+        course.getGradingPolicy(
+            StudentType::UNDERGRADUATE
+        );
+
+    const CourseGradingPolicy* graduatePolicy =
+        course.getGradingPolicy(
+            StudentType::GRADUATE
+        );
+
+    ASSERT_NE(
+        undergraduatePolicy,
+        nullptr
+    );
+
+    ASSERT_NE(
+        graduatePolicy,
+        nullptr
+    );
+
+    EXPECT_NE(
+        undergraduatePolicy,
+        graduatePolicy
+    );
+
+    EXPECT_EQ(
+        undergraduatePolicy->getStudentType(),
+        StudentType::UNDERGRADUATE
+    );
+
+    EXPECT_EQ(
+        graduatePolicy->getStudentType(),
+        StudentType::GRADUATE
+    );
+}
+
+
+TEST(
+    CourseTest,
+    GradingPolicyReferenceRemainsValidAfterAddingAnotherPolicy
+) {
     UndergraduateCourse course(
         101,
         "CS101",
@@ -242,29 +311,21 @@ TEST(CourseTest, CreatesSeparateGradingPoliciesForStudentTypes) {
             StudentType::UNDERGRADUATE
         );
 
-    CourseGradingPolicy& graduatePolicy =
-        course.getOrCreateGradingPolicy(
-            StudentType::GRADUATE
-        );
-
-    EXPECT_NE(
-        &undergraduatePolicy,
-        &graduatePolicy
+    course.getOrCreateGradingPolicy(
+        StudentType::GRADUATE
     );
 
     EXPECT_EQ(
         undergraduatePolicy.getStudentType(),
         StudentType::UNDERGRADUATE
     );
-
-    EXPECT_EQ(
-        graduatePolicy.getStudentType(),
-        StudentType::GRADUATE
-    );
 }
 
 
-TEST(CourseTest, ReturnsExistingGradingPolicyForSameStudentType) {
+TEST(
+    CourseTest,
+    ReturnsExistingGradingPolicyForSameStudentType
+) {
     UndergraduateCourse course(
         101,
         "CS101",

@@ -11,8 +11,9 @@
 
 class Exam;
 
+
 // Base domain class representing common course data and behavior.
-// A Course owns its exams and stores grading policies by value.
+// A Course owns its exams and grading policies.
 class Course {
 protected:
     int id;
@@ -23,11 +24,17 @@ protected:
     // Defines the minimum letter grade required to pass this course.
     PassingPolicy passingPolicy;
 
-    // Course owns Exam objects with stable addresses.
+    // Course owns Exam objects.
     std::vector<std::unique_ptr<Exam>> exams;
 
-    // Stores grading configurations for different student types.
-    std::vector<CourseGradingPolicy> gradingPolicies;
+    /*
+     * Course owns grading policies for different student types.
+     *
+     * unique_ptr keeps ownership explicit and keeps CourseGradingPolicy
+     * objects at stable memory addresses even if the vector reallocates.
+     */
+    std::vector<std::unique_ptr<CourseGradingPolicy>>
+        gradingPolicies;
 
 public:
     Course(
@@ -41,28 +48,42 @@ public:
     virtual ~Course();
 
     int getId() const;
+
     const std::string& getCode() const;
+
     const std::string& getName() const;
+
     int getCredits() const;
 
     // Delegates the pass/fail decision to PassingPolicy.
-    bool isPassed(LetterGrade grade) const;
+    bool isPassed(
+        LetterGrade grade
+    ) const;
 
     // Recreates the exams belonging to this course.
-    void createExams(int examCount);
+    void createExams(
+        int examCount
+    );
 
     // Provides read-only access to the owned exams.
     const std::vector<std::unique_ptr<Exam>>&
         getExams() const;
 
-    // Returns the grading policy for the given student type,
-    // or nullptr if no policy has been configured.
-    const CourseGradingPolicy* getGradingPolicy(
-        StudentType studentType
-    ) const;
+    /*
+     * Returns the grading policy for the given student type,
+     * or nullptr if no policy has been configured.
+     */
+    const CourseGradingPolicy*
+        getGradingPolicy(
+            StudentType studentType
+        ) const;
 
-    // Returns the existing policy or creates one when necessary.
-    CourseGradingPolicy& getOrCreateGradingPolicy(
-        StudentType studentType
-    );
+    /*
+     * Returns the existing policy or creates
+     * and owns a new one when necessary.
+     */
+    CourseGradingPolicy&
+        getOrCreateGradingPolicy(
+            StudentType studentType
+        );
 };

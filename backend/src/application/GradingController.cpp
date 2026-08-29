@@ -25,12 +25,18 @@ void GradingController::configureExams(
         );
     }
 
-    // Do not recreate Exam objects when the configuration
-    // has not actually changed. Existing ExamScore pointers
-    // remain valid.
+    /*
+     * Do not recreate Exam objects when the requested
+     * configuration is already active.
+     *
+     * ExamScore keeps pointers to Exam objects, so preserving
+     * the existing Exam instances also preserves those pointers.
+     */
     if (
         static_cast<int>(
-            course.getExams().size()
+            course
+            .getExams()
+            .size()
             ) == examCount
         ) {
         return;
@@ -48,12 +54,15 @@ void GradingController::configureWeightedAverage(
     const std::map<int, double>& weights
 ) const {
 
-    // A course may use a different grading strategy
-    // for undergraduate and graduate students.
+    /*
+     * A Course may use a different grading strategy
+     * for each StudentType.
+     */
     CourseGradingPolicy& gradingPolicy =
-        course.getOrCreateGradingPolicy(studentType);
+        course.getOrCreateGradingPolicy(
+            studentType
+        );
 
-    // The grading policy owns the selected strategy.
     gradingPolicy.setStrategy(
         std::make_unique<WeightedAverageStrategy>(
             weights
@@ -70,10 +79,10 @@ void GradingController::configureThreshold(
 ) const {
 
     CourseGradingPolicy& gradingPolicy =
-        course.getOrCreateGradingPolicy(studentType);
+        course.getOrCreateGradingPolicy(
+            studentType
+        );
 
-    // Create the threshold strategy using the instructor's configuration
-    // and transfer its ownership to the grading policy.
     gradingPolicy.setStrategy(
         std::make_unique<ThresholdStrategy>(
             threshold,
@@ -98,23 +107,41 @@ void GradingController::enterExamScore(
         );
     }
 
-    const Exam* selectedExam = nullptr;
+    const Exam* selectedExam =
+        nullptr;
 
-    // Find the exam that belongs to the enrollment's course.
-    for (const auto& exam : course->getExams()) {
-        if (exam->getId() == examId) {
-            selectedExam = exam.get();
+    /*
+     * Find the Exam belonging to the Course
+     * referenced by the Enrollment.
+     */
+    for (
+        const auto& exam :
+        course->getExams()
+        ) {
+        if (
+            exam->getId() ==
+            examId
+            ) {
+            selectedExam =
+                exam.get();
+
             break;
         }
     }
 
-    if (selectedExam == nullptr) {
+    if (
+        selectedExam ==
+        nullptr
+        ) {
         throw std::invalid_argument(
             "Exam not found in this course."
         );
     }
 
-    // Enrollment owns the ExamScore and updates it if it already exists.
+    /*
+     * Enrollment owns the ExamScore collection.
+     * Existing scores are updated instead of duplicated.
+     */
     enrollment.setExamScore(
         selectedExam,
         score
@@ -132,39 +159,72 @@ void GradingController::calculateFinalResult(
     Course* course =
         enrollment.getCourse();
 
-    if (student == nullptr ||
-        course == nullptr) {
+    if (
+        student == nullptr ||
+        course == nullptr
+        ) {
         throw std::logic_error(
             "Enrollment is incomplete."
+        );
+    }
+
+    /*
+     * Final result can only be calculated after a score
+     * has been entered for every Exam in the Course.
+     */
+    if (
+        enrollment
+        .getExamScores()
+        .size() !=
+        course
+        ->getExams()
+        .size()
+        ) {
+        throw std::logic_error(
+            "All exam scores must be entered before calculating the final result."
         );
     }
 
     const StudentType studentType =
         student->getStudentType();
 
-    // Select the grading policy configured for this student type.
     const CourseGradingPolicy* gradingPolicy =
-        course->getGradingPolicy(studentType);
+        course->getGradingPolicy(
+            studentType
+        );
 
-    if (gradingPolicy == nullptr) {
+    if (
+        gradingPolicy ==
+        nullptr
+        ) {
         throw std::logic_error(
             "Grading policy has not been configured."
         );
     }
 
-    // Numeric grade calculation is delegated to the selected strategy.
+    /*
+     * Numeric final score calculation is delegated
+     * to the configured GradeCalculationStrategy.
+     */
     const double finalScore =
         gradingPolicy->calculateGrade(
             enrollment.getExamScores()
         );
 
-    // Letter-grade conversion is delegated to the student's
-    // LetterGradePolicy.
+    /*
+     * Letter grade conversion is delegated
+     * to the Student's LetterGradePolicy.
+     */
     const LetterGrade letterGrade =
         student->calculateLetterGrade(
             finalScore
         );
 
-    enrollment.setFinalScore(finalScore);
-    enrollment.setLetterGrade(letterGrade);
+    enrollment.setFinalScore(
+        finalScore
+    );
+
+    enrollment.setLetterGrade(
+        letterGrade
+    );
 }

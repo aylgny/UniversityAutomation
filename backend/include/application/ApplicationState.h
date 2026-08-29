@@ -9,6 +9,7 @@ class Course;
 class Instructor;
 class Enrollment;
 
+
 // Owns the main application data and manages persistent storage.
 class ApplicationState {
 private:
@@ -33,6 +34,11 @@ public:
         const std::string& filePath
     ) const;
 
+
+    // =====================================================
+    // ACCESSORS
+    // =====================================================
+
     const std::vector<std::unique_ptr<Student>>&
         getStudents() const;
 
@@ -48,19 +54,43 @@ public:
     const std::vector<std::unique_ptr<Enrollment>>&
         getEnrollments() const;
 
+
+    // =====================================================
+    // LOOKUPS
+    // =====================================================
+
     Student* findStudentById(
         int id
+    );
+
+    const Student* findStudentById(
+        int id
     ) const;
+
 
     Course* findCourseById(
         int id
-    ) const;
+    );
 
-    Instructor* findInstructorById(
+    const Course* findCourseById(
         int id
     ) const;
 
+
+    Instructor* findInstructorById(
+        int id
+    );
+
+    const Instructor* findInstructorById(
+        int id
+    ) const;
+
+
     Enrollment* findEnrollmentById(
+        int id
+    );
+
+    const Enrollment* findEnrollmentById(
         int id
     ) const;
 };

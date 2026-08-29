@@ -143,7 +143,42 @@
 
   justify-content: flex-end;
 
+  gap: 12px;
+
   margin-top: 20px;
+}
+
+
+.secondary-action-button {
+  padding: 13px 24px;
+
+  border:
+    1px solid
+    #111827;
+
+  border-radius: 9px;
+
+  background: #ffffff;
+
+  color: #111827;
+
+  font: inherit;
+
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+
+.secondary-action-button:hover:not(:disabled) {
+  background: #f3f4f6;
+}
+
+
+.secondary-action-button:disabled {
+  opacity: 0.55;
+
+  cursor: not-allowed;
 }
 
 
@@ -161,8 +196,15 @@
   }
 
 
+  .grade-management-actions {
+    flex-direction: column;
+  }
+
+
   .grade-management-actions
-  .primary-action-button {
+  .primary-action-button,
+  .grade-management-actions
+  .secondary-action-button {
     width: 100%;
   }
 
