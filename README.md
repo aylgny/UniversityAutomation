@@ -86,7 +86,6 @@ Domain Model
         |
         v
 Policies / Strategies
-
 Nesne Yönelimli Tasarım
 
 Temel domain sınıfları:
@@ -364,11 +363,9 @@ Enrollment validation
 PassingPolicy
 CourseGradingPolicy
 Farklı StudentType'lar için farklı grading policy kullanımı
-Eksik sınav notlarıyla final hesaplamasının engellenmesi
+Eksik sınav notlarıyla final hesaplanmasının engellenmesi
 Score değiştiğinde eski final sonucunun temizlenmesi
 Grading policy referanslarının güvenli şekilde korunması
-
-bulunmaktadır.
 
 Testler:
 
