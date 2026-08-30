@@ -8,23 +8,23 @@ Proje; nesne yönelimli analiz ve tasarım prensipleri, modülerlik, genişletil
 
 ## İçindekiler
 
-- [Proje Hakkında]\(#proje-hakkında)
+- [Proje Hakkında](#proje-hakkında)
 
-- [Özellikler]\(#özellikler)
+- [Özellikler](#özellikler)
 
-- [Mimari ve Tasarım]\(#mimari-ve-tasarım)
+- [Mimari ve Tasarım](#mimari-ve-tasarım)
 
-- [Kullanılan Teknolojiler]\(#kullanılan-teknolojiler)
+- [Kullanılan Teknolojiler](#kullanılan-teknolojiler)
 
-- [Kurulum ve Çalıştırma]\(#kurulum-ve-çalıştırma)
+- [Kurulum ve Çalıştırma](#kurulum-ve-çalıştırma)
 
-- [Demo Kullanıcıları]\(#demo-kullanıcıları)
+- [Demo Kullanıcıları](#demo-kullanıcıları)
 
-- [Testler]\(#testler)
+- [Testler](#testler)
 
-- [Proje Yapısı]\(#proje-yapısı)
+- [Proje Yapısı](#proje-yapısı)
 
-- [Notlar]\(#notlar)
+- [Notlar](#notlar)
 
 ---
 
