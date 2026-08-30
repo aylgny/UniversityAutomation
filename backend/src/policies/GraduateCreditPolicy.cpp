@@ -1,6 +1,7 @@
 #include "policies/GraduateCreditPolicy.h"
 
 std::optional<int> GraduateCreditPolicy::getMaxCredits(double gpa) const {
+    // Graduate students with GPA above 3.5 may take up to 15 credits.
     if (gpa > 3.5) {
         return 15;
     }

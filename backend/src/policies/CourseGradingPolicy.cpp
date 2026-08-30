@@ -23,6 +23,7 @@ void CourseGradingPolicy::setStrategy(
         );
     }
 
+    // Transfer ownership of the new strategy to this policy.
     this->strategy = std::move(strategy);
 }
 
@@ -38,11 +39,13 @@ CourseGradingPolicy::getStrategy() const {
 double CourseGradingPolicy::calculateGrade(
     const std::vector<ExamScore>& scores
 ) const {
+    // Grade calculation is not possible until a strategy is configured.
     if (!strategy) {
         throw std::logic_error(
             "Grading strategy has not been configured."
         );
     }
 
+    // Delegate the calculation algorithm to the selected strategy.
     return strategy->calculate(scores);
 }

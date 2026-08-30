@@ -16,7 +16,7 @@ class ApplicationState;
 
 namespace api {
 
-    // Registers authentication routes.
+    // Registers authentication endpoints on the HTTP server
     void registerAuthRoutes(
         httplib::Server& server,
         ApplicationState& state

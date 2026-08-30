@@ -33,12 +33,12 @@ public:
     );
 
     // Student is used as a polymorphic base class.
+    // Required for safe polymorphic destruction.
     virtual ~Student() = default;
 
     double getGpa() const;
 
-    // Implemented by concrete student types such as
-    // UndergraduateStudent and GraduateStudent.
+    // Implemented by concrete student types.
     virtual StudentType getStudentType() const = 0;
 
 

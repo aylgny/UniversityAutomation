@@ -16,7 +16,7 @@ class ApplicationState;
 
 namespace api {
 
-    // Registers instructor routes.
+    // Registers instructor endpoints on the HTTP server.
     void registerInstructorRoutes(
         httplib::Server& server,
         ApplicationState& state

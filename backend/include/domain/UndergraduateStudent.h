@@ -2,8 +2,8 @@
 
 #include "domain/Student.h"
 
-// Concrete student type representing undergraduate students.
-// It selects the undergraduate-specific policies through its constructor.
+// Concrete student type for undergraduate students.
+// Configures undergraduate-specific policies through its constructor.
 
 class UndergraduateStudent : public Student {
 public:

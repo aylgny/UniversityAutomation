@@ -10,12 +10,14 @@ Person::Person(
     : id(id),
     name(name) {
 
+    // Ensures that every person has a valid positive identifier.
     if (id <= 0) {
         throw std::invalid_argument(
             "Person id must be positive."
         );
     }
 
+    // Prevents creation of a person without a name.
     if (name.empty()) {
         throw std::invalid_argument(
             "Person name cannot be empty."

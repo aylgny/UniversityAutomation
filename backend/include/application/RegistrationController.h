@@ -17,6 +17,7 @@ public:
     ) const;
 
 private:
+    // Calculates the total credits of the student's current enrollments.
     int calculateCurrentCredits(
         const Student& student,
         const std::vector<std::unique_ptr<Enrollment>>& enrollments

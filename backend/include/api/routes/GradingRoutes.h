@@ -19,7 +19,7 @@ class GradingController;
 
 namespace api {
 
-    // Registers grading-related routes.
+    // Registers grading-related endpoints on the HTTP server.
     void registerGradingRoutes(
         httplib::Server& server,
         ApplicationState& state,

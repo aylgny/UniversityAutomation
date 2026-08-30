@@ -141,6 +141,11 @@ export type CourseGradingResponse = {
     GRADUATE?:
       GradingApiConfiguration;
   };
+  
+  lockedByStudentType: {
+    UNDERGRADUATE: boolean;
+    GRADUATE: boolean;
+  };
 };
 
 

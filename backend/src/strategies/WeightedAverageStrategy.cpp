@@ -52,7 +52,7 @@ double WeightedAverageStrategy::calculate(
     for (const auto& examScore : scores) {
         const Exam* exam = examScore.getExam();
 
-        // Find the configured weight for this exam.
+        // Match each score with the weight configured for its exam.
         const auto weightIt = weights.find(exam->getId());
 
         if (weightIt == weights.end()) {

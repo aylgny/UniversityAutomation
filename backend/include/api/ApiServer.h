@@ -1,24 +1,19 @@
-/*
- * Declares the REST API server.
- * Holds the shared application state and starts the HTTP server.
- */
-
 #pragma once
 
 class ApplicationState;
 
-
+// Exposes application use cases through a REST/JSON API.
 class ApiServer {
+private:
+    // Non-owning reference to the shared application state.
+    ApplicationState& state;
+
 public:
     explicit ApiServer(
         ApplicationState& state
     );
 
     void run(
-        int port
+        int port = 8080
     );
-
-private:
-    // Shared application data.
-    ApplicationState& state;
 };

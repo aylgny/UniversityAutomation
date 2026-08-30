@@ -14,6 +14,7 @@
 
 #include "domain/Instructor.h"
 #include "domain/Course.h"
+#include "domain/UndergraduateCourse.h"
 
 
 namespace api {
@@ -145,6 +146,13 @@ namespace api {
                                 continue;
                             }
 
+                            // Determine the concrete course type for serialization.
+                            const bool undergraduate =
+                                dynamic_cast<
+                                const UndergraduateCourse*
+                                >(
+                                    course
+                                    ) != nullptr;
 
                             result.push_back(
                                 {
@@ -163,6 +171,12 @@ namespace api {
                                     {
                                         "credits",
                                         course->getCredits()
+                                    },
+                                    {
+                                        "type",
+                                        undergraduate
+                                            ? "UNDERGRADUATE"
+                                            : "GRADUATE"
                                     },
                                     {
                                         "examCount",

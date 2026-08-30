@@ -43,6 +43,7 @@ ApplicationState::~ApplicationState() = default;
 
 void ApplicationState::seedSampleData() {
 
+    // Reset the existing state before creating sample data.
     students.clear();
     courses.clear();
     instructors.clear();
@@ -53,15 +54,22 @@ void ApplicationState::seedSampleData() {
     // STUDENTS
     // =====================================================
 
-    // Undergraduate students with different GPA levels.
+    /*
+     * Student A accounts are used as demo users.
+     * They intentionally start without any enrollments.
+     */
+
+     // Undergraduate demo student.
     students.push_back(
         std::make_unique<UndergraduateStudent>(
             1,
             "Lisans Öğrencisi A",
-            3.60
+            3.80
         )
     );
 
+
+    // Additional undergraduate students.
     students.push_back(
         std::make_unique<UndergraduateStudent>(
             2,
@@ -79,15 +87,17 @@ void ApplicationState::seedSampleData() {
     );
 
 
-    // Graduate students with different GPA levels.
+    // Graduate demo student.
     students.push_back(
         std::make_unique<GraduateStudent>(
             4,
             "Yüksek Lisans Öğrencisi A",
-            3.80
+            3.60
         )
     );
 
+
+    // Additional graduate students.
     students.push_back(
         std::make_unique<GraduateStudent>(
             5,
@@ -125,6 +135,11 @@ void ApplicationState::seedSampleData() {
         students[5].get();
 
 
+    // Demo users intentionally start without enrollments.
+    (void)undergraduateA;
+    (void)graduateA;
+
+
     // =====================================================
     // INSTRUCTORS
     // =====================================================
@@ -155,9 +170,15 @@ void ApplicationState::seedSampleData() {
     // COURSES
     // =====================================================
 
-    // -----------------------------------------------------
-    // Undergraduate Courses
-    // -----------------------------------------------------
+    /*
+     * Courses intentionally start without exams or grading
+     * strategies so they can be configured during the demo.
+     */
+
+
+     // -----------------------------------------------------
+     // Undergraduate Courses
+     // -----------------------------------------------------
 
     auto cs101 =
         std::make_unique<UndergraduateCourse>(
@@ -166,10 +187,6 @@ void ApplicationState::seedSampleData() {
             "Programlamaya Giriş",
             5
         );
-
-    cs101->createExams(
-        2
-    );
 
     Course* cs101Ptr =
         cs101.get();
@@ -187,10 +204,6 @@ void ApplicationState::seedSampleData() {
             5
         );
 
-    cs201->createExams(
-        3
-    );
-
     Course* cs201Ptr =
         cs201.get();
 
@@ -206,10 +219,6 @@ void ApplicationState::seedSampleData() {
             "Yazılım Mühendisliği",
             5
         );
-
-    cs301->createExams(
-        2
-    );
 
     Course* cs301Ptr =
         cs301.get();
@@ -231,10 +240,6 @@ void ApplicationState::seedSampleData() {
             5
         );
 
-    cs501->createExams(
-        2
-    );
-
     Course* cs501Ptr =
         cs501.get();
 
@@ -250,10 +255,6 @@ void ApplicationState::seedSampleData() {
             "İleri Algoritmalar",
             4
         );
-
-    cs502->createExams(
-        3
-    );
 
     Course* cs502Ptr =
         cs502.get();
@@ -271,10 +272,6 @@ void ApplicationState::seedSampleData() {
             3
         );
 
-    cs503->createExams(
-        2
-    );
-
     Course* cs503Ptr =
         cs503.get();
 
@@ -286,6 +283,11 @@ void ApplicationState::seedSampleData() {
     // =====================================================
     // INSTRUCTOR - COURSE RELATIONSHIPS
     // =====================================================
+
+    /*
+     * Instructor A is the demo instructor and is assigned
+     * both undergraduate and graduate courses.
+     */
 
     instructorA->addCourse(
         cs101Ptr
@@ -299,6 +301,10 @@ void ApplicationState::seedSampleData() {
         cs501Ptr
     );
 
+    instructorA->addCourse(
+        cs503Ptr
+    );
+
 
     instructorB->addCourse(
         cs201Ptr
@@ -308,420 +314,93 @@ void ApplicationState::seedSampleData() {
         cs502Ptr
     );
 
-    instructorB->addCourse(
-        cs503Ptr
-    );
-
-
-    // =====================================================
-    // GRADING CONFIGURATIONS
-    // =====================================================
-
-    GradingController gradingController;
-
-
-    // -----------------------------------------------------
-    // CS101
-    // Undergraduate - Weighted Average
-    // -----------------------------------------------------
-
-    gradingController.configureWeightedAverage(
-        *cs101Ptr,
-        StudentType::UNDERGRADUATE,
-        {
-            {1, 0.40},
-            {2, 0.60}
-        }
-    );
-
-
-    // -----------------------------------------------------
-    // CS201
-    // Undergraduate - Threshold
-    // Exam 1 is the threshold exam.
-    // -----------------------------------------------------
-
-    gradingController.configureThreshold(
-        *cs201Ptr,
-        StudentType::UNDERGRADUATE,
-        50.0,
-        { 1 }
-    );
-
-
-    // -----------------------------------------------------
-    // CS301
-    // Same course uses different grading strategies
-    // depending on StudentType.
-    // -----------------------------------------------------
-
-    gradingController.configureWeightedAverage(
-        *cs301Ptr,
-        StudentType::UNDERGRADUATE,
-        {
-            {1, 0.30},
-            {2, 0.70}
-        }
-    );
-
-    gradingController.configureThreshold(
-        *cs301Ptr,
-        StudentType::GRADUATE,
-        60.0,
-        { 1 }
-    );
-
-
-    // -----------------------------------------------------
-    // CS501
-    // Graduate - Weighted Average
-    // -----------------------------------------------------
-
-    gradingController.configureWeightedAverage(
-        *cs501Ptr,
-        StudentType::GRADUATE,
-        {
-            {1, 0.50},
-            {2, 0.50}
-        }
-    );
-
-
-    // -----------------------------------------------------
-    // CS502
-    // Graduate - Threshold
-    // -----------------------------------------------------
-
-    gradingController.configureThreshold(
-        *cs502Ptr,
-        StudentType::GRADUATE,
-        50.0,
-        { 1 }
-    );
-
-
-    // -----------------------------------------------------
-    // CS503
-    // Graduate - Weighted Average
-    // -----------------------------------------------------
-
-    gradingController.configureWeightedAverage(
-        *cs503Ptr,
-        StudentType::GRADUATE,
-        {
-            {1, 0.40},
-            {2, 0.60}
-        }
-    );
-
 
     // =====================================================
     // ENROLLMENTS
     // =====================================================
 
+    /*
+     * Demo students A intentionally have no enrollments.
+     * Other students are pre-enrolled so instructor pages
+     * still contain representative application data.
+     *
+     * CS301 contains both undergraduate and graduate
+     * students to demonstrate student-type-specific
+     * grading strategies within the same course.
+     */
+
     RegistrationController registrationController;
 
 
     // -----------------------------------------------------
-    // Undergraduate Student A
-    // -----------------------------------------------------
-
-    Enrollment* undergraduateACs101 =
-        registrationController.enroll(
-            *undergraduateA,
-            *cs101Ptr,
-            enrollments
-        );
-
-    Enrollment* undergraduateACs301 =
-        registrationController.enroll(
-            *undergraduateA,
-            *cs301Ptr,
-            enrollments
-        );
-
-
-    // -----------------------------------------------------
     // Undergraduate Student B
+    // GPA: 2.70 -> Maximum credits: 20
+    // Current credits: 10
     // -----------------------------------------------------
 
-    Enrollment* undergraduateBCs101 =
-        registrationController.enroll(
-            *undergraduateB,
-            *cs101Ptr,
-            enrollments
-        );
+    registrationController.enroll(
+        *undergraduateB,
+        *cs101Ptr,
+        enrollments
+    );
 
-    Enrollment* undergraduateBCs201 =
-        registrationController.enroll(
-            *undergraduateB,
-            *cs201Ptr,
-            enrollments
-        );
+    registrationController.enroll(
+        *undergraduateB,
+        *cs301Ptr,
+        enrollments
+    );
 
 
     // -----------------------------------------------------
     // Undergraduate Student C
+    // GPA: 1.80 -> Maximum credits: 15
+    // Current credits: 5
     // -----------------------------------------------------
 
-    Enrollment* undergraduateCCs201 =
-        registrationController.enroll(
-            *undergraduateC,
-            *cs201Ptr,
-            enrollments
-        );
-
-
-    // -----------------------------------------------------
-    // Graduate Student A
-    //
-    // This student is also enrolled in CS301.
-    // It demonstrates a different grading strategy
-    // for a different StudentType in the same course.
-    // -----------------------------------------------------
-
-    Enrollment* graduateACs501 =
-        registrationController.enroll(
-            *graduateA,
-            *cs501Ptr,
-            enrollments
-        );
-
-    Enrollment* graduateACs502 =
-        registrationController.enroll(
-            *graduateA,
-            *cs502Ptr,
-            enrollments
-        );
-
-    Enrollment* graduateACs301 =
-        registrationController.enroll(
-            *graduateA,
-            *cs301Ptr,
-            enrollments
-        );
+    registrationController.enroll(
+        *undergraduateC,
+        *cs201Ptr,
+        enrollments
+    );
 
 
     // -----------------------------------------------------
     // Graduate Student B
+    // GPA: 3.20 -> Maximum credits: 10
+    // Current credits: 10
     // -----------------------------------------------------
 
-    Enrollment* graduateBCs501 =
-        registrationController.enroll(
-            *graduateB,
-            *cs501Ptr,
-            enrollments
-        );
+    registrationController.enroll(
+        *graduateB,
+        *cs301Ptr,
+        enrollments
+    );
 
-    Enrollment* graduateBCs503 =
-        registrationController.enroll(
-            *graduateB,
-            *cs503Ptr,
-            enrollments
-        );
+    registrationController.enroll(
+        *graduateB,
+        *cs501Ptr,
+        enrollments
+    );
 
 
     // -----------------------------------------------------
     // Graduate Student C
+    // GPA: 2.70 -> Maximum credits: 6
+    // Current credits: 4
     // -----------------------------------------------------
 
-    Enrollment* graduateCCs503 =
-        registrationController.enroll(
-            *graduateC,
-            *cs503Ptr,
-            enrollments
-        );
-
-
-    // =====================================================
-    // EXAM SCORE DEMO DATA
-    // =====================================================
-
-
-    // -----------------------------------------------------
-    // Undergraduate Student A - CS101
-    // Complete scores and calculated final result.
-    // -----------------------------------------------------
-
-    gradingController.enterExamScore(
-        *undergraduateACs101,
-        1,
-        80.0
-    );
-
-    gradingController.enterExamScore(
-        *undergraduateACs101,
-        2,
-        90.0
-    );
-
-    gradingController.calculateFinalResult(
-        *undergraduateACs101
+    registrationController.enroll(
+        *graduateC,
+        *cs502Ptr,
+        enrollments
     );
 
 
-    // -----------------------------------------------------
-    // Undergraduate Student A - CS301
-    // Partial score entry.
-    // Final result is intentionally not calculated.
-    // -----------------------------------------------------
-
-    gradingController.enterExamScore(
-        *undergraduateACs301,
-        1,
-        75.0
-    );
-
-
-    // -----------------------------------------------------
-    // Undergraduate Student B - CS101
-    // No scores entered yet.
-    // -----------------------------------------------------
-
-    (void)undergraduateBCs101;
-
-
-    // -----------------------------------------------------
-    // Undergraduate Student B - CS201
-    // Complete threshold example.
-    // -----------------------------------------------------
-
-    gradingController.enterExamScore(
-        *undergraduateBCs201,
-        1,
-        60.0
-    );
-
-    gradingController.enterExamScore(
-        *undergraduateBCs201,
-        2,
-        70.0
-    );
-
-    gradingController.enterExamScore(
-        *undergraduateBCs201,
-        3,
-        80.0
-    );
-
-    gradingController.calculateFinalResult(
-        *undergraduateBCs201
-    );
-
-
-    // -----------------------------------------------------
-    // Undergraduate Student C - CS201
-    // Partial score entry.
-    // Threshold exam is currently below the threshold.
-    // -----------------------------------------------------
-
-    gradingController.enterExamScore(
-        *undergraduateCCs201,
-        1,
-        45.0
-    );
-
-
-    // -----------------------------------------------------
-    // Graduate Student A - CS501
-    // Complete weighted-average example.
-    // -----------------------------------------------------
-
-    gradingController.enterExamScore(
-        *graduateACs501,
-        1,
-        88.0
-    );
-
-    gradingController.enterExamScore(
-        *graduateACs501,
-        2,
-        92.0
-    );
-
-    gradingController.calculateFinalResult(
-        *graduateACs501
-    );
-
-
-    // -----------------------------------------------------
-    // Graduate Student A - CS502
-    // Partial score entry.
-    // -----------------------------------------------------
-
-    gradingController.enterExamScore(
-        *graduateACs502,
-        1,
-        70.0
-    );
-
-    gradingController.enterExamScore(
-        *graduateACs502,
-        2,
-        85.0
-    );
-
-
-    // -----------------------------------------------------
-    // Graduate Student A - CS301
-    //
-    // Same course as Undergraduate Student A,
-    // but the graduate-specific ThresholdStrategy is used.
-    // -----------------------------------------------------
-
-    gradingController.enterExamScore(
-        *graduateACs301,
-        1,
-        65.0
-    );
-
-    gradingController.enterExamScore(
-        *graduateACs301,
-        2,
-        90.0
-    );
-
-    gradingController.calculateFinalResult(
-        *graduateACs301
-    );
-
-
-    // -----------------------------------------------------
-    // Graduate Student B - CS501
-    // No scores entered yet.
-    // -----------------------------------------------------
-
-    (void)graduateBCs501;
-
-
-    // -----------------------------------------------------
-    // Graduate Student B - CS503
-    // Complete weighted-average example.
-    // -----------------------------------------------------
-
-    gradingController.enterExamScore(
-        *graduateBCs503,
-        1,
-        75.0
-    );
-
-    gradingController.enterExamScore(
-        *graduateBCs503,
-        2,
-        85.0
-    );
-
-    gradingController.calculateFinalResult(
-        *graduateBCs503
-    );
-
-
-    // -----------------------------------------------------
-    // Graduate Student C - CS503
-    // No scores entered yet.
-    // -----------------------------------------------------
-
-    (void)graduateCCs503;
+    /*
+     * No grading configuration, exam scores or final results
+     * are created here. These operations are demonstrated
+     * interactively through the application.
+     */
 }
 
 
@@ -886,6 +565,7 @@ void ApplicationState::loadFromFile(
 
     inputFile >> data;
 
+    // Clear the current state before reconstructing it from JSON.
     students.clear();
     courses.clear();
     instructors.clear();
@@ -1243,6 +923,7 @@ void ApplicationState::loadFromFile(
             .at("courseId")
             .get<int>();
 
+        // Restore object relationships using persisted identifiers.
         Student* student =
             findStudentById(
                 studentId
@@ -1558,6 +1239,7 @@ void ApplicationState::saveToFile(
                 : "GRADUATE";
 
 
+            // Serialize strategy-specific configuration according to its concrete type.
             if (
                 const auto*
                 weightedStrategy =
@@ -1749,7 +1431,3 @@ void ApplicationState::saveToFile(
     outputFile <<
         data.dump(4);
 }
-
-//ApplicationState uygulamadaki ana domain nesnelerinin ownership'ini tutuyor.
-//Verileri unique_ptr ile yönetiyor, ID'ler üzerinden nesneler arası ilişkileri
-//kuruyor ve uygulama state'ini JSON formatında serialize/deserialize ediyor.

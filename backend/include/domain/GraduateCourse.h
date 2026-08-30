@@ -3,6 +3,7 @@
 #include "domain/Course.h"
 
 // Concrete course type for graduate-level courses.
+// Configures the graduate passing rule through its constructor.
 class GraduateCourse : public Course {
 public:
     GraduateCourse(

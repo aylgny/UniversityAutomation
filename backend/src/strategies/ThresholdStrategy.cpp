@@ -45,7 +45,7 @@ double ThresholdStrategy::calculate(
 
         bool isThresholdExam = false;
 
-        // Check whether this score belongs to one of the threshold exams.
+        // Separate threshold exams from the remaining exams.
         for (int examId : thresholdExamIds) {
             if (exam->getId() == examId) {
                 isThresholdExam = true;

@@ -8,6 +8,7 @@
 class ThresholdStrategy : public GradeCalculationStrategy {
 private:
     double threshold;
+    // Exams whose average must satisfy the configured threshold.
     std::vector<int> thresholdExamIds;
 
 public:

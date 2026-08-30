@@ -23,7 +23,7 @@ private:
     // Enrollment owns the exam scores for this student-course relationship.
     std::vector<ExamScore> examScores;
 
-    // These values may not exist until final grading is completed.
+    // Available only after final grading has been completed.
     std::optional<double> finalScore;
     std::optional<LetterGrade> letterGrade;
 

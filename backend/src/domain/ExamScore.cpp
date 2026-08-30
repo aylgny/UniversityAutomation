@@ -5,10 +5,12 @@
 ExamScore::ExamScore(const Exam* exam, double score)
     : exam(exam), score(score) {
 
+    // Every score must be associated with a valid exam.
     if (exam == nullptr) {
         throw std::invalid_argument("Exam cannot be null.");
     }
 
+    // Scores are restricted to the valid 0-100 range.
     if (score < 0.0 || score > 100.0) {
         throw std::invalid_argument("Score must be between 0 and 100.");
     }

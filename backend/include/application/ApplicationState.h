@@ -13,6 +13,7 @@ class Enrollment;
 // Owns the main application data and manages persistent storage.
 class ApplicationState {
 private:
+    // ApplicationState owns the main domain objects.
     std::vector<std::unique_ptr<Student>> students;
     std::vector<std::unique_ptr<Course>> courses;
     std::vector<std::unique_ptr<Instructor>> instructors;
@@ -21,15 +22,18 @@ private:
 public:
     ApplicationState();
 
-    // Defined in the .cpp file where owned types are complete.
+    // Defined in the .cpp file where the owned types are complete.
     ~ApplicationState();
 
+    // Replaces the current state with predefined demonstration data.
     void seedSampleData();
 
+    // Restores the application state from a JSON file.
     void loadFromFile(
         const std::string& filePath
     );
 
+    // Persists the current application state to a JSON file.
     void saveToFile(
         const std::string& filePath
     ) const;
@@ -59,6 +63,7 @@ public:
     // LOOKUPS
     // =====================================================
 
+    // Lookup methods return nullptr when no matching object is found.
     Student* findStudentById(
         int id
     );

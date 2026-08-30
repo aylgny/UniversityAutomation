@@ -19,7 +19,7 @@ class RegistrationController;
 
 namespace api {
 
-    // Registers enrollment routes.
+    // Registers enrollment endpoints on the HTTP server.
     void registerEnrollmentRoutes(
         httplib::Server& server,
         ApplicationState& state,

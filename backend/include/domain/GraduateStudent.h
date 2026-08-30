@@ -2,8 +2,8 @@
 
 #include "domain/Student.h"
 
-// Concrete student type representing graduate students.
-// It selects the graduate-specific policies through its constructor.
+// Concrete student type for graduate students.
+// Configures graduate-specific policies through its constructor.
 class GraduateStudent : public Student {
 public:
     GraduateStudent(
@@ -12,5 +12,6 @@ public:
         double gpa
     );
 
+    // Returns the concrete student category.
     StudentType getStudentType() const override;
 };

@@ -128,6 +128,17 @@ function GradeManagement({
       >
     >({});
 
+  const [
+  persistedScores,
+  setPersistedScores,
+] =
+  useState<
+    Record<
+      number,
+      string[]
+    >
+  >({});
+
 
   const [
     results,
@@ -219,6 +230,36 @@ function GradeManagement({
     courseConfiguration
       ?.gradingByStudentType
       .Graduate;
+
+
+  const hasConfigurationForStudent = (
+    studentType: StudentType
+  ) => {
+
+    if (
+      studentType ===
+      "Undergraduate"
+    ) {
+      return (
+        undergraduateConfiguration !==
+        undefined
+      );
+    }
+
+    return (
+      graduateConfiguration !==
+      undefined
+    );
+  };
+
+
+  const hasAnyUnconfiguredStudent =
+    students.some(
+      (student) =>
+        !hasConfigurationForStudent(
+          student.studentType
+        )
+    );
 
 
   // =====================================================
@@ -387,8 +428,32 @@ function GradeManagement({
               studentRecords
             );
 
+
+            
             setScores(
               initialScores
+            );
+
+            setPersistedScores(
+              Object.fromEntries(
+                Object.entries(
+                  initialScores
+                ).map(
+                  (
+                    [
+                      studentId,
+                      studentScores,
+                    ]
+                  ) => [
+                    Number(
+                      studentId
+                    ),
+                    [
+                      ...studentScores,
+                    ],
+                  ]
+                )
+              )
             );
 
             setResults(
@@ -569,6 +634,21 @@ function GradeManagement({
       }
 
 
+      if (
+        hasAnyUnconfiguredStudent
+      ) {
+
+        setMessageType(
+          "error"
+        );
+
+        setMessage(
+          "Configure grading for all enrolled student groups before entering exam scores."
+        );
+
+        return;
+      }
+
       try {
 
         setIsSaving(
@@ -594,6 +674,11 @@ function GradeManagement({
               student.id
             ] ?? [];
 
+          const persistedStudentScores =
+            persistedScores[
+              student.id
+            ] ?? [];
+
 
           for (
             let index = 0;
@@ -602,22 +687,51 @@ function GradeManagement({
             index++
           ) {
 
+            const currentRawScore =
+              studentScores[
+                index
+              ];
+
+            const persistedRawScore =
+              persistedStudentScores[
+                index
+              ] ?? "";
+
+
             const numericScore =
               validateEnteredScore(
-                studentScores[
-                  index
-                ]
+                currentRawScore
               );
 
 
-            /*
-             * Empty inputs are intentionally skipped.
-             * This allows Exam 1 to be saved before
-             * Exam 2 and Exam 3 have taken place.
-             */
+            // Empty values are ignored.
             if (
               numericScore ===
               null
+            ) {
+              continue;
+            }
+
+
+            const hadPersistedScore =
+              persistedRawScore
+                .trim() !== "";
+
+
+            const persistedNumericScore =
+              hadPersistedScore
+                ? Number(
+                    persistedRawScore
+                  )
+                : null;
+
+
+            // Unchanged scores are not sent again.
+            if (
+              persistedNumericScore !==
+                null &&
+              persistedNumericScore ===
+                numericScore
             ) {
               continue;
             }
@@ -641,15 +755,37 @@ function GradeManagement({
         ) {
 
           setMessageType(
-            "error"
+            "success"
           );
 
           setMessage(
-            "There are no exam scores to save."
+            "No score changes to save."
           );
 
           return;
         }
+
+        setPersistedScores(
+          Object.fromEntries(
+            Object.entries(
+              scores
+            ).map(
+              (
+                [
+                  studentId,
+                  studentScores,
+                ]
+              ) => [
+                Number(
+                  studentId
+                ),
+                [
+                  ...studentScores,
+                ],
+              ]
+            )
+          )
+        );
 
 
         setMessageType(
@@ -716,15 +852,6 @@ function GradeManagement({
     if (
       hasEmptyScore
     ) {
-
-      setMessageType(
-        "error"
-      );
-
-      setMessage(
-        `All exam scores must be entered for ${student.name} before final grades can be calculated.`
-      );
-
       return null;
     }
 
@@ -752,16 +879,9 @@ function GradeManagement({
     if (
       hasInvalidScore
     ) {
-
-      setMessageType(
-        "error"
-      );
-
-      setMessage(
+      throw new Error(
         `Exam scores for ${student.name} must be between 0 and 100.`
       );
-
-      return null;
     }
 
 
@@ -809,39 +929,19 @@ function GradeManagement({
       }
 
 
-      const validatedScores:
-        Record<
-          number,
-          number[]
-        > = {};
-
-
-      /*
-       * Final grade calculation is only allowed
-       * when every required exam score is present.
-       */
-      for (
-        const student of
-        students
+      if (
+        hasAnyUnconfiguredStudent
       ) {
 
-        const numericScores =
-          validateAllStudentScores(
-            student
-          );
+        setMessageType(
+          "error"
+        );
 
+        setMessage(
+          "Configure grading for all enrolled student groups before calculating final grades."
+        );
 
-        if (
-          !numericScores
-        ) {
-          return;
-        }
-
-
-        validatedScores[
-          student.id
-        ] =
-          numericScores;
+        return;
       }
 
 
@@ -863,15 +963,34 @@ function GradeManagement({
           > = {};
 
 
+        let calculatedCount =
+          0;
+
+        let skippedCount =
+          0;
+
+
+        /*
+         * Calculate only students whose complete exam
+         * scores are available. Incomplete students remain pending.
+         */
         for (
           const student of
           students
         ) {
 
           const numericScores =
-            validatedScores[
-              student.id
-            ];
+            validateAllStudentScores(
+              student
+            );
+
+
+          if (
+            !numericScores
+          ) {
+            skippedCount++;
+            continue;
+          }
 
 
           /*
@@ -915,11 +1034,37 @@ function GradeManagement({
             passed:
               result.passed,
           };
+
+
+          calculatedCount++;
         }
 
 
+        if (
+          calculatedCount ===
+          0
+        ) {
+
+          setMessageType(
+            "error"
+          );
+
+          setMessage(
+            "No students have complete exam scores yet."
+          );
+
+          return;
+        }
+
+
+        // Preserve existing results for students that were skipped.
         setResults(
-          calculatedResults
+          (
+            previousResults
+          ) => ({
+            ...previousResults,
+            ...calculatedResults,
+          })
         );
 
 
@@ -927,9 +1072,22 @@ function GradeManagement({
           "success"
         );
 
-        setMessage(
-          `${selectedCourse.code} final grades calculated successfully.`
-        );
+
+        if (
+          skippedCount >
+          0
+        ) {
+
+          setMessage(
+            `${calculatedCount} final grade(s) calculated. ${skippedCount} student(s) skipped because exam scores are incomplete.`
+          );
+        }
+        else {
+
+          setMessage(
+            `${calculatedCount} final grade(s) calculated successfully.`
+          );
+        }
 
       }
       catch (error) {
@@ -1132,7 +1290,7 @@ function GradeManagement({
                   "weighted"
                   ? "Weighted Average"
                   : "Threshold Method"
-                : "Backend Configuration"}
+                : "Not Configured"}
             </strong>
 
 
@@ -1141,7 +1299,7 @@ function GradeManagement({
                 ? describeConfiguration(
                     undergraduateConfiguration
                   )
-                : "Configuration is managed by the backend."}
+                : "Configure a grading method before entering grades."}
             </small>
 
           </div>
@@ -1160,7 +1318,7 @@ function GradeManagement({
                   "weighted"
                   ? "Weighted Average"
                   : "Threshold Method"
-                : "Backend Configuration"}
+                : "Not Configured"}
             </strong>
 
 
@@ -1169,7 +1327,7 @@ function GradeManagement({
                 ? describeConfiguration(
                     graduateConfiguration
                   )
-                : "Configuration is managed by the backend."}
+                : "Configure a grading method before entering grades."}
             </small>
 
           </div>
@@ -1310,7 +1468,10 @@ function GradeManagement({
                               placeholder="0-100"
                               disabled={
                                 isSaving ||
-                                isCalculating
+                                isCalculating ||
+                                !hasConfigurationForStudent(
+                                  student.studentType
+                                )
                               }
                               onChange={
                                 (event) =>
@@ -1403,7 +1564,8 @@ function GradeManagement({
             isCalculating ||
             loadingStudents ||
             students.length ===
-            0
+            0 ||
+            hasAnyUnconfiguredStudent
           }
         >
           {isSaving
@@ -1422,7 +1584,8 @@ function GradeManagement({
             isCalculating ||
             loadingStudents ||
             students.length ===
-            0
+            0 ||
+            hasAnyUnconfiguredStudent
           }
         >
           {isCalculating

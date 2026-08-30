@@ -14,6 +14,7 @@ int RegistrationController::calculateCurrentCredits(
 
     int totalCredits = 0;
 
+    // Sum credits only from courses belonging to this student.
     for (const auto& enrollment : enrollments) {
 
         if (
@@ -37,7 +38,7 @@ Enrollment* RegistrationController::enroll(
     std::vector<std::unique_ptr<Enrollment>>& enrollments
 ) const {
 
-    // Prevent duplicate registration.
+    // Prevent duplicate registration for the same student and course.
     for (const auto& enrollment : enrollments) {
 
         if (
@@ -58,11 +59,11 @@ Enrollment* RegistrationController::enroll(
         );
 
 
-    // Credit-limit calculation is delegated to CreditPolicy.
+    // Credit-limit calculation is delegated to the student's CreditPolicy.
     const auto maxCredits =
         student.getMaxCredits();
 
-
+    // Unlimited policies return no maximum credit value.
     if (
         maxCredits.has_value() &&
         currentCredits + course.getCredits() >
@@ -88,12 +89,12 @@ Enrollment* RegistrationController::enroll(
         );
 
 
-    // Keep a non-owning pointer for the return value.
+    // Keep a non-owning pointer before transferring ownership.
     Enrollment* enrollmentPtr =
         enrollment.get();
 
 
-    // Application-level collection takes ownership.
+    // Application-level collection takes ownership of Enrollment.
     enrollments.push_back(
         std::move(enrollment)
     );

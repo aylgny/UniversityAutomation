@@ -10,12 +10,14 @@ Exam::Exam(
     : id(id),
     name(name) {
 
+    // Exam identifiers must be positive.
     if (id <= 0) {
         throw std::invalid_argument(
             "Exam id must be positive."
         );
     }
 
+    // Every exam must have a descriptive name.
     if (name.empty()) {
         throw std::invalid_argument(
             "Exam name cannot be empty."

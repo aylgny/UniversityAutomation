@@ -7,6 +7,7 @@
 // Calculates the final grade using exam-specific weights.
 class WeightedAverageStrategy : public GradeCalculationStrategy {
 private:
+    // Maps each exam id to its contribution to the final grade.
     std::map<int, double> weights;
 
 public:

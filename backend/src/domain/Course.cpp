@@ -71,6 +71,7 @@ int Course::getCredits() const {
 bool Course::isPassed(
     LetterGrade grade
 ) const {
+    // Passing rules are handled by the configured policy.
     return passingPolicy.isPassed(
         grade
     );
@@ -86,6 +87,7 @@ void Course::createExams(
         );
     }
 
+    // Recreate the exam set from scratch.
     exams.clear();
 
     for (
@@ -115,6 +117,7 @@ Course::getGradingPolicy(
     StudentType studentType
 ) const {
 
+    // Find the policy configured for the requested student type.
     for (
         const auto& policy :
         gradingPolicies
@@ -136,6 +139,7 @@ Course::getOrCreateGradingPolicy(
     StudentType studentType
 ) {
 
+    // Reuse the existing policy when one is already configured.
     for (
         const auto& policy :
         gradingPolicies
@@ -149,9 +153,8 @@ Course::getOrCreateGradingPolicy(
     }
 
     /*
-     * Course owns the policy through unique_ptr.
-     * The actual CourseGradingPolicy object keeps a stable address
-     * even if the vector itself reallocates.
+     * Course owns the new policy through unique_ptr.
+     * The pointed object keeps a stable address even if the vector reallocates.
      */
     gradingPolicies.push_back(
         std::make_unique<CourseGradingPolicy>(

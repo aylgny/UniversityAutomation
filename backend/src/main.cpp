@@ -1,6 +1,6 @@
 /*
  * Application entry point.
- * Loads existing data or creates sample data,
+ * Loads persisted data or creates sample data,
  * then starts the REST API server.
  */
 

@@ -676,3 +676,56 @@ TEST(
         .has_value()
     );
 }
+
+// =========================================================
+// INSTRUCTOR TESTS
+// =========================================================
+
+TEST(
+    InstructorTest,
+    DoesNotAddSameCourseTwice
+) {
+    Instructor instructor(
+        1,
+        "Instructor"
+    );
+
+    UndergraduateCourse course(
+        101,
+        "CS101",
+        "Course",
+        5
+    );
+
+    instructor.addCourse(
+        &course
+    );
+
+    instructor.addCourse(
+        &course
+    );
+
+    EXPECT_EQ(
+        instructor.getCourses().size(),
+        1
+    );
+}
+
+
+TEST(
+    InstructorTest,
+    DoesNotAddNullCourse
+) {
+    Instructor instructor(
+        1,
+        "Instructor"
+    );
+
+    instructor.addCourse(
+        nullptr
+    );
+
+    EXPECT_TRUE(
+        instructor.getCourses().empty()
+    );
+}

@@ -17,6 +17,7 @@
 #include "application/ApplicationState.h"
 #include "application/GradingController.h"
 
+#include "domain/Student.h"
 #include "domain/Course.h"
 #include "domain/Enrollment.h"
 #include "domain/StudentType.h"
@@ -31,6 +32,37 @@
 namespace api {
 
     using json = nlohmann::json;
+
+
+    // Returns true when at least one student of the given type
+    // already has an exam score for the selected course.
+    bool hasScoresForStudentType(
+        const ApplicationState& state,
+        const Course* course,
+        StudentType studentType
+    ) {
+        for (
+            const auto& enrollment :
+            state.getEnrollments()
+            ) {
+            if (
+                enrollment->getCourse() ==
+                course &&
+                enrollment
+                ->getStudent()
+                ->getStudentType() ==
+                studentType &&
+                !enrollment
+                ->getExamScores()
+                .empty()
+                ) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 
 
     void registerGradingRoutes(
@@ -103,7 +135,9 @@ namespace api {
 
                         /*
                          * ExamScore keeps non-owning Exam pointers.
-                         * Prevent exam changes after score entry.
+                         * Prevent exam-count changes after score entry.
+                         * If the requested count is unchanged, do not
+                         * recreate Exam objects.
                          */
                         if (
                             currentExamCount !=
@@ -130,20 +164,19 @@ namespace api {
                                     return;
                                 }
                             }
-                        }
 
 
-                        // Delegate exam creation.
-                        gradingController
-                            .configureExams(
-                                *course,
-                                examCount
+                            gradingController
+                                .configureExams(
+                                    *course,
+                                    examCount
+                                );
+
+
+                            state.saveToFile(
+                                dataFile
                             );
-
-
-                        state.saveToFile(
-                            dataFile
-                        );
+                        }
 
 
                         sendJson(
@@ -247,6 +280,23 @@ namespace api {
                         }
 
 
+                        if (
+                            hasScoresForStudentType(
+                                state,
+                                course,
+                                studentType
+                            )
+                            ) {
+                            sendError(
+                                response,
+                                "Grading configuration cannot be changed after exam scores have been entered for this student group.",
+                                409
+                            );
+
+                            return;
+                        }
+
+
                         // Configure weighted grading.
                         gradingController
                             .configureWeightedAverage(
@@ -332,6 +382,26 @@ namespace api {
 
                         json gradingByStudentType =
                             json::object();
+
+
+                        const json lockedByStudentType = {
+                            {
+                                "UNDERGRADUATE",
+                                hasScoresForStudentType(
+                                    state,
+                                    course,
+                                    StudentType::UNDERGRADUATE
+                                )
+                            },
+                            {
+                                "GRADUATE",
+                                hasScoresForStudentType(
+                                    state,
+                                    course,
+                                    StudentType::GRADUATE
+                                )
+                            }
+                        };
 
 
                         const std::vector<StudentType>
@@ -488,6 +558,10 @@ namespace api {
                                 {
                                     "gradingByStudentType",
                                     gradingByStudentType
+                                },
+                                {
+                                    "lockedByStudentType",
+                                    lockedByStudentType
                                 }
                             }
                         );
@@ -569,6 +643,23 @@ namespace api {
                                 response,
                                 "Course not found.",
                                 404
+                            );
+
+                            return;
+                        }
+
+
+                        if (
+                            hasScoresForStudentType(
+                                state,
+                                course,
+                                studentType
+                            )
+                            ) {
+                            sendError(
+                                response,
+                                "Grading configuration cannot be changed after exam scores have been entered for this student group.",
+                                409
                             );
 
                             return;

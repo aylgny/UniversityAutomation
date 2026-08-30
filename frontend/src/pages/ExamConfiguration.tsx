@@ -18,6 +18,7 @@ import {
   configureExams,
   configureThreshold,
   configureWeightedAverage,
+  getGradingConfiguration,
 } from "../services/api";
 
 import type {
@@ -29,7 +30,28 @@ import "./ExamConfiguration.css";
 
 type GradingMethod =
   | "weighted"
-  | "threshold";
+  | "threshold"
+  | null;
+
+
+type GradingDraft = {
+  method: GradingMethod;
+  weights: string[];
+  threshold: string;
+  thresholdExamIds: number[];
+};
+
+
+type DraftConfigurations = {
+  Undergraduate: GradingDraft;
+  Graduate: GradingDraft;
+};
+
+
+type GradingLockState = {
+  UNDERGRADUATE: boolean;
+  GRADUATE: boolean;
+};
 
 
 type ExamConfigurationProps = {
@@ -103,40 +125,193 @@ function ExamConfiguration({
 
 
   const [
-    gradingMethod,
-    setGradingMethod,
+    lockedByStudentType,
+    setLockedByStudentType,
   ] =
-    useState<GradingMethod>(
-      "weighted"
+    useState<GradingLockState>({
+      UNDERGRADUATE: false,
+      GRADUATE: false,
+    });
+
+
+  const isCurrentGroupLocked =
+    studentType ===
+    "Undergraduate"
+      ? lockedByStudentType
+          .UNDERGRADUATE
+      : lockedByStudentType
+          .GRADUATE;
+
+
+  const isExamCountLocked =
+    lockedByStudentType
+      .UNDERGRADUATE ||
+    lockedByStudentType
+      .GRADUATE;
+
+
+  const areAllGroupsLocked =
+    lockedByStudentType
+      .UNDERGRADUATE &&
+    lockedByStudentType
+      .GRADUATE;
+
+
+  const createEmptyDraft = (
+    count: number
+  ): GradingDraft => ({
+    method: null,
+    weights: Array.from(
+      {
+        length: count,
+      },
+      () => ""
+    ),
+    threshold: "",
+    thresholdExamIds: [],
+  });
+
+
+  const [
+    draftConfigurations,
+    setDraftConfigurations,
+  ] =
+    useState<DraftConfigurations>({
+      Undergraduate:
+        createEmptyDraft(
+          courses[0]?.examCount ??
+          2
+        ),
+
+      Graduate:
+        createEmptyDraft(
+          courses[0]?.examCount ??
+          2
+        ),
+    });
+
+
+  const currentDraft =
+    draftConfigurations[
+      studentType
+    ];
+
+
+  const gradingMethod =
+    currentDraft.method;
+
+  const weights =
+    currentDraft.weights;
+
+  const threshold =
+    currentDraft.threshold;
+
+  const thresholdExamIds =
+    currentDraft.thresholdExamIds;
+
+
+  const updateCurrentDraft = (
+    updater:
+      (
+        draft: GradingDraft
+      ) => GradingDraft
+  ) => {
+
+    setDraftConfigurations(
+      (
+        previousDrafts
+      ) => ({
+        ...previousDrafts,
+
+        [studentType]:
+          updater(
+            previousDrafts[
+              studentType
+            ]
+          ),
+      })
     );
+  };
 
 
-  const [
-    weights,
-    setWeights,
-  ] =
-    useState<string[]>([
-      "40",
-      "60",
-    ]);
+  const setGradingMethod = (
+    method: GradingMethod
+  ) => {
 
-
-  const [
-    threshold,
-    setThreshold,
-  ] =
-    useState<string>(
-      "50"
+    updateCurrentDraft(
+      (draft) => ({
+        ...draft,
+        method,
+      })
     );
+  };
 
 
-  const [
-    thresholdExamIds,
-    setThresholdExamIds,
-  ] =
-    useState<number[]>([
-      1,
-    ]);
+  const setWeights = (
+    value:
+      | string[]
+      | (
+          (
+            previousWeights:
+              string[]
+          ) => string[]
+        )
+  ) => {
+
+    updateCurrentDraft(
+      (draft) => ({
+        ...draft,
+
+        weights:
+          typeof value ===
+          "function"
+            ? value(
+                draft.weights
+              )
+            : value,
+      })
+    );
+  };
+
+
+  const setThreshold = (
+    value: string
+  ) => {
+
+    updateCurrentDraft(
+      (draft) => ({
+        ...draft,
+        threshold: value,
+      })
+    );
+  };
+
+
+  const setThresholdExamIds = (
+    value:
+      | number[]
+      | (
+          (
+            previousIds:
+              number[]
+          ) => number[]
+        )
+  ) => {
+
+    updateCurrentDraft(
+      (draft) => ({
+        ...draft,
+
+        thresholdExamIds:
+          typeof value ===
+          "function"
+            ? value(
+                draft.thresholdExamIds
+              )
+            : value,
+      })
+    );
+  };
 
 
   const [
@@ -164,111 +339,192 @@ function ExamConfiguration({
     useState(false);
 
 
-  // Load existing frontend configuration
-  // when course/student group changes.
+  // Load score-based lock state for the selected course.
   useEffect(
     () => {
 
-        const courseConfiguration =
+      let cancelled =
+        false;
+
+
+      const loadLockState =
+        async () => {
+
+          if (
+            selectedCourseId ===
+            0
+          ) {
+            return;
+          }
+
+
+          try {
+
+            const response =
+              await getGradingConfiguration(
+                selectedCourseId
+              ) as Awaited<
+                ReturnType<
+                  typeof getGradingConfiguration
+                >
+              > & {
+                lockedByStudentType:
+                  GradingLockState;
+              };
+
+
+            if (
+              !cancelled
+            ) {
+              setLockedByStudentType(
+                response
+                  .lockedByStudentType
+              );
+            }
+          }
+          catch {
+
+            if (
+              !cancelled
+            ) {
+              setLockedByStudentType({
+                UNDERGRADUATE:
+                  false,
+                GRADUATE:
+                  false,
+              });
+            }
+          }
+        };
+
+
+      loadLockState();
+
+
+      return () => {
+        cancelled =
+          true;
+      };
+    },
+    [
+      selectedCourseId,
+    ]
+  );
+
+
+  // Load persisted configurations when the selected course changes.
+  // Drafts are kept separately for undergraduate and graduate students.
+  useEffect(
+    () => {
+
+      const courseConfiguration =
         configurations[
-            selectedCourseId
+          selectedCourseId
         ];
 
-        const courseExamCount =
+      const courseExamCount =
         courseConfiguration
-            ?.examCount ??
+          ?.examCount ??
         selectedCourse
-            ?.examCount ??
+          ?.examCount ??
         2;
 
-        setExamCount(
+
+      setExamCount(
         courseExamCount
-        );
+      );
 
-        const gradingConfiguration =
-        courseConfiguration
-            ?.gradingByStudentType[
-            studentType
-            ];
+
+      const createDraftFromConfiguration = (
+        configuration:
+          GradingMethodConfiguration |
+          undefined
+      ): GradingDraft => {
 
         if (
-        !gradingConfiguration
+          !configuration
         ) {
+          return createEmptyDraft(
+            courseExamCount
+          );
+        }
 
-        setGradingMethod(
-            "weighted"
-        );
 
-        setWeights(
+        if (
+          configuration.method ===
+          "weighted"
+        ) {
+          return {
+            method:
+              "weighted",
+
+            weights:
+              configuration
+                .weights
+                .map(
+                  (weight) =>
+                    String(
+                      weight * 100
+                    )
+                ),
+
+            threshold:
+              "",
+
+            thresholdExamIds:
+              [],
+          };
+        }
+
+
+        return {
+          method:
+            "threshold",
+
+          weights:
             Array.from(
-            {
+              {
                 length:
-                courseExamCount,
-            },
-            () =>
-                (
-                100 /
-                courseExamCount
-                ).toFixed(2)
-            )
-        );
+                  courseExamCount,
+              },
+              () => ""
+            ),
 
-        setThreshold(
-            "50"
-        );
-
-        setThresholdExamIds(
-            [1]
-        );
-
-        return;
-        }
-
-        if (
-        gradingConfiguration.method ===
-        "weighted"
-        ) {
-
-        setGradingMethod(
-            "weighted"
-        );
-
-        setWeights(
-            gradingConfiguration
-            .weights
-            .map(
-                (weight) =>
-                String(
-                    weight * 100
-                )
-            )
-        );
-        }
-        else {
-
-        setGradingMethod(
-            "threshold"
-        );
-
-        setThreshold(
+          threshold:
             String(
-            gradingConfiguration
-                .threshold
-            )
-        );
+              configuration.threshold
+            ),
 
-        setThresholdExamIds(
-            gradingConfiguration
-            .thresholdExamIds
-        );
-        }
+          thresholdExamIds:
+            [
+              ...configuration
+                .thresholdExamIds,
+            ],
+        };
+      };
+
+
+      setDraftConfigurations({
+        Undergraduate:
+          createDraftFromConfiguration(
+            courseConfiguration
+              ?.gradingByStudentType
+              .Undergraduate
+          ),
+
+        Graduate:
+          createDraftFromConfiguration(
+            courseConfiguration
+              ?.gradingByStudentType
+              .Graduate
+          ),
+      });
 
     },
     [
-        selectedCourseId,
-        selectedCourse,
-        studentType,
-        configurations,
+      selectedCourseId,
+      selectedCourse,
+      configurations,
     ]
   );
 
@@ -290,21 +546,78 @@ function ExamConfiguration({
     );
 
 
-    setWeights(
-      Array.from(
-        {
-          length: count,
-        },
-        () =>
-          (
-            100 / count
-          ).toFixed(2)
-      )
-    );
+    const resizeDraft = (
+      draft: GradingDraft
+    ): GradingDraft => {
+
+      const resizedWeights =
+        draft.method ===
+        "weighted"
+          ? Array.from(
+              {
+                length: count,
+              },
+              () =>
+                (
+                  100 /
+                  count
+                ).toFixed(2)
+            )
+          : Array.from(
+              {
+                length: count,
+              },
+              () => ""
+            );
 
 
-    setThresholdExamIds(
-      [1]
+      let resizedThresholdExamIds =
+        draft.thresholdExamIds
+          .filter(
+            (examId) =>
+              examId <=
+              count
+          );
+
+
+      if (
+        draft.method ===
+          "threshold" &&
+        resizedThresholdExamIds
+          .length ===
+          0
+      ) {
+        resizedThresholdExamIds =
+          [1];
+      }
+
+
+      return {
+        ...draft,
+        weights:
+          resizedWeights,
+        thresholdExamIds:
+          resizedThresholdExamIds,
+      };
+    };
+
+
+    setDraftConfigurations(
+      (
+        previousDrafts
+      ) => ({
+        Undergraduate:
+          resizeDraft(
+            previousDrafts
+              .Undergraduate
+          ),
+
+        Graduate:
+          resizeDraft(
+            previousDrafts
+              .Graduate
+          ),
+      })
     );
 
 
@@ -439,125 +752,126 @@ function ExamConfiguration({
       }
 
 
-      const apiStudentType:
-        StudentType =
-        studentType ===
-        "Undergraduate"
-          ? "UNDERGRADUATE"
-          : "GRADUATE";
-
-
-      let configuration:
-        GradingMethodConfiguration;
-
-
-      if (
-        gradingMethod ===
-        "weighted"
-      ) {
-
-        const hasEmptyWeight =
-          weights.some(
-            (weight) =>
-              weight.trim() ===
-              ""
-          );
-
+      const buildConfiguration = (
+        group:
+          StudentGroup,
+        draft:
+          GradingDraft
+      ):
+        GradingMethodConfiguration |
+        null => {
 
         if (
-          hasEmptyWeight
+          draft.method ===
+          null
         ) {
-
-          setMessageType(
-            "error"
-          );
-
-          setMessage(
-            "All exam weights must be entered."
-          );
-
-          return;
-        }
-
-
-        const invalidWeight =
-          numericWeights.some(
-            (weight) =>
-              Number.isNaN(
-                weight
-              ) ||
-              weight < 0 ||
-              weight > 100
-          );
-
-
-        if (
-          invalidWeight
-        ) {
-
-          setMessageType(
-            "error"
-          );
-
-          setMessage(
-            "Each exam weight must be between 0 and 100."
-          );
-
-          return;
+          return null;
         }
 
 
         if (
-          Math.abs(
-            totalWeight - 100
-          ) > 0.01
+          draft.method ===
+          "weighted"
         ) {
 
-          setMessageType(
-            "error"
-          );
-
-          setMessage(
-            `Weights must sum to 100%. Current total: ${totalWeight.toFixed(2)}%.`
-          );
-
-          return;
-        }
-
-
-        configuration = {
-          method:
-            "weighted",
-
-          weights:
-            numericWeights.map(
+          const hasEmptyWeight =
+            draft.weights.some(
               (weight) =>
-                weight / 100
-            ),
-        };
-      }
-      else {
+                weight.trim() ===
+                ""
+            );
+
+
+          if (
+            hasEmptyWeight
+          ) {
+            throw new Error(
+              `${group}: all exam weights must be entered.`
+            );
+          }
+
+
+          const numericWeights =
+            draft.weights.map(
+              (weight) =>
+                Number(
+                  weight
+                )
+            );
+
+
+          const invalidWeight =
+            numericWeights.some(
+              (weight) =>
+                Number.isNaN(
+                  weight
+                ) ||
+                weight < 0 ||
+                weight > 100
+            );
+
+
+          if (
+            invalidWeight
+          ) {
+            throw new Error(
+              `${group}: each exam weight must be between 0 and 100.`
+            );
+          }
+
+
+          const total =
+            numericWeights.reduce(
+              (
+                sum,
+                weight
+              ) =>
+                sum +
+                weight,
+              0
+            );
+
+
+          if (
+            Math.abs(
+              total -
+              100
+            ) >
+            0.01
+          ) {
+            throw new Error(
+              `${group}: weights must sum to 100%. Current total: ${total.toFixed(2)}%.`
+            );
+          }
+
+
+          return {
+            method:
+              "weighted",
+
+            weights:
+              numericWeights.map(
+                (weight) =>
+                  weight /
+                  100
+              ),
+          };
+        }
+
 
         if (
-          threshold.trim() ===
+          draft.threshold.trim() ===
           ""
         ) {
-
-          setMessageType(
-            "error"
+          throw new Error(
+            `${group}: threshold score must be entered.`
           );
-
-          setMessage(
-            "Threshold score must be entered."
-          );
-
-          return;
         }
 
 
         const numericThreshold =
           Number(
-            threshold
+            draft.threshold
           );
 
 
@@ -568,22 +882,68 @@ function ExamConfiguration({
           numericThreshold < 0 ||
           numericThreshold > 100
         ) {
-
-          setMessageType(
-            "error"
+          throw new Error(
+            `${group}: threshold must be between 0 and 100.`
           );
-
-          setMessage(
-            "Threshold must be between 0 and 100."
-          );
-
-          return;
         }
 
 
         if (
-          thresholdExamIds.length ===
+          draft
+            .thresholdExamIds
+            .length ===
           0
+        ) {
+          throw new Error(
+            `${group}: at least one threshold exam must be selected.`
+          );
+        }
+
+
+        return {
+          method:
+            "threshold",
+
+          threshold:
+            numericThreshold,
+
+          thresholdExamIds:
+            [
+              ...draft
+                .thresholdExamIds,
+            ],
+        };
+      };
+
+
+      try {
+
+        const undergraduateConfiguration =
+          lockedByStudentType
+            .UNDERGRADUATE
+            ? null
+            : buildConfiguration(
+                "Undergraduate",
+                draftConfigurations
+                  .Undergraduate
+              );
+
+        const graduateConfiguration =
+          lockedByStudentType
+            .GRADUATE
+            ? null
+            : buildConfiguration(
+                "Graduate",
+                draftConfigurations
+                  .Graduate
+              );
+
+
+        if (
+          undergraduateConfiguration ===
+            null &&
+          graduateConfiguration ===
+            null
         ) {
 
           setMessageType(
@@ -591,26 +951,14 @@ function ExamConfiguration({
           );
 
           setMessage(
-            "At least one threshold exam must be selected."
+            areAllGroupsLocked
+              ? "Grading configuration is locked because exam scores have already been entered."
+              : "Please configure at least one editable student group."
           );
 
           return;
         }
 
-
-        configuration = {
-          method:
-            "threshold",
-
-          threshold:
-            numericThreshold,
-
-          thresholdExamIds,
-        };
-      }
-
-
-      try {
 
         setSaving(
           true
@@ -621,54 +969,109 @@ function ExamConfiguration({
         );
 
 
-        // First persist exam structure.
-        await configureExams(
-          selectedCourse.id,
-          examCount
-        );
-
-
-        // Then persist selected grading strategy.
+        // Exam structure belongs to the course and is shared by both groups.
+        // Once any score exists, the exam count is locked.
         if (
-          configuration.method ===
-          "weighted"
+          !isExamCountLocked
         ) {
-
-          await configureWeightedAverage(
+          await configureExams(
             selectedCourse.id,
-            apiStudentType,
-            configuration.weights.map(
-              (
-                weight,
-                index
-              ) => ({
-                examId:
-                  index + 1,
-
-                weight,
-              })
-            )
-          );
-        }
-        else {
-
-          await configureThreshold(
-            selectedCourse.id,
-            apiStudentType,
-            configuration.threshold,
-            configuration
-              .thresholdExamIds
+            examCount
           );
         }
 
 
-        // Keep existing frontend pages in sync.
-        onSaveConfiguration(
-          selectedCourse.id,
-          examCount,
-          studentType,
-          configuration
-        );
+        const saveGroupConfiguration =
+          async (
+            group:
+              StudentGroup,
+            apiStudentType:
+              StudentType,
+            configuration:
+              GradingMethodConfiguration |
+              null
+          ) => {
+
+            if (
+              configuration ===
+              null
+            ) {
+              return false;
+            }
+
+
+            if (
+              configuration.method ===
+              "weighted"
+            ) {
+
+              await configureWeightedAverage(
+                selectedCourse.id,
+                apiStudentType,
+                configuration
+                  .weights
+                  .map(
+                    (
+                      weight,
+                      index
+                    ) => ({
+                      examId:
+                        index +
+                        1,
+
+                      weight,
+                    })
+                  )
+              );
+            }
+            else {
+
+              await configureThreshold(
+                selectedCourse.id,
+                apiStudentType,
+                configuration.threshold,
+                configuration
+                  .thresholdExamIds
+              );
+            }
+
+
+            onSaveConfiguration(
+              selectedCourse.id,
+              examCount,
+              group,
+              configuration
+            );
+
+
+            return true;
+          };
+
+
+        let savedGroupCount =
+          0;
+
+
+        if (
+          await saveGroupConfiguration(
+            "Undergraduate",
+            "UNDERGRADUATE",
+            undergraduateConfiguration
+          )
+        ) {
+          savedGroupCount++;
+        }
+
+
+        if (
+          await saveGroupConfiguration(
+            "Graduate",
+            "GRADUATE",
+            graduateConfiguration
+          )
+        ) {
+          savedGroupCount++;
+        }
 
 
         setMessageType(
@@ -676,7 +1079,7 @@ function ExamConfiguration({
         );
 
         setMessage(
-          `${selectedCourse.code} grading configuration saved for ${studentType} students.`
+          `${selectedCourse.code} grading configuration saved for ${savedGroupCount} student group(s).`
         );
       }
       catch (error) {
@@ -852,6 +1255,9 @@ function ExamConfiguration({
               value={
                 examCount
               }
+              disabled={
+                isExamCountLocked
+              }
               onChange={
                 (event) =>
                   handleExamCountChange(
@@ -861,6 +1267,13 @@ function ExamConfiguration({
                   )
               }
             />
+
+
+            {isExamCountLocked && (
+              <p className="configuration-description">
+                Exam count is locked because exam scores have already been entered.
+              </p>
+            )}
 
           </div>
 
@@ -922,6 +1335,24 @@ function ExamConfiguration({
         </section>
 
 
+        {isCurrentGroupLocked && (
+
+          <section className="configuration-card full-width">
+
+            <h3>
+              Configuration Locked
+            </h3>
+
+            <p className="configuration-description">
+              Exam scores have already been entered for this student group.
+              The grading configuration can no longer be changed.
+            </p>
+
+          </section>
+
+        )}
+
+
         <section className="configuration-card full-width">
 
           <h3>
@@ -938,10 +1369,27 @@ function ExamConfiguration({
                   ? "grading-method-card selected"
                   : "grading-method-card"
               }
+              disabled={
+                isCurrentGroupLocked
+              }
               onClick={() => {
 
                 setGradingMethod(
                   "weighted"
+                );
+
+                setWeights(
+                  Array.from(
+                    {
+                      length:
+                        examCount,
+                    },
+                    () =>
+                      (
+                        100 /
+                        examCount
+                      ).toFixed(2)
+                  )
                 );
 
                 setMessage(
@@ -969,10 +1417,21 @@ function ExamConfiguration({
                   ? "grading-method-card selected"
                   : "grading-method-card"
               }
+              disabled={
+                isCurrentGroupLocked
+              }
               onClick={() => {
 
                 setGradingMethod(
                   "threshold"
+                );
+
+                setThreshold(
+                  "50"
+                );
+
+                setThresholdExamIds(
+                  [1]
                 );
 
                 setMessage(
@@ -998,7 +1457,26 @@ function ExamConfiguration({
 
 
         {gradingMethod ===
-        "weighted" ? (
+        null && (
+
+          <section className="configuration-card full-width">
+
+            <h3>
+              Grading Method Not Selected
+            </h3>
+
+            <p className="configuration-description">
+              Select Weighted Average or Threshold Method
+              to configure grading for this student group.
+            </p>
+
+          </section>
+
+        )}
+
+
+        {gradingMethod ===
+        "weighted" && (
 
           <section className="configuration-card full-width">
 
@@ -1065,6 +1543,9 @@ function ExamConfiguration({
                         value={
                           weight
                         }
+                        disabled={
+                          isCurrentGroupLocked
+                        }
                         onChange={
                           (event) =>
                             handleWeightChange(
@@ -1089,7 +1570,11 @@ function ExamConfiguration({
 
           </section>
 
-        ) : (
+        )}
+
+
+        {gradingMethod ===
+        "threshold" && (
 
           <section className="configuration-card full-width">
 
@@ -1113,6 +1598,9 @@ function ExamConfiguration({
                   max="100"
                   value={
                     threshold
+                  }
+                  disabled={
+                    isCurrentGroupLocked
                   }
                   onChange={
                     (event) => {
@@ -1171,6 +1659,9 @@ function ExamConfiguration({
                                   examId
                                 )
                             }
+                            disabled={
+                              isCurrentGroupLocked
+                            }
                             onChange={() =>
                               toggleThresholdExam(
                                 examId
@@ -1205,12 +1696,15 @@ function ExamConfiguration({
               handleSave
             }
             disabled={
-              saving
+              saving ||
+              areAllGroupsLocked
             }
           >
             {saving
               ? "Saving..."
-              : "Save Configuration"}
+              : areAllGroupsLocked
+                ? "Configuration Locked"
+                : "Save Configuration"}
           </button>
 
         </div>

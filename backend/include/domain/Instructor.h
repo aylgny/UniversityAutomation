@@ -9,7 +9,6 @@ class Course;
 class Instructor : public Person {
 private:
     // Non-owning references to the courses assigned to this instructor.
-    // Instructor references Course, but does not own it.
     std::vector<Course*> courses;
 
 public:

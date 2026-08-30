@@ -138,10 +138,7 @@ void GradingController::enterExamScore(
         );
     }
 
-    /*
-     * Enrollment owns the ExamScore collection.
-     * Existing scores are updated instead of duplicated.
-     */
+    // Enrollment updates an existing score or creates a new one.
     enrollment.setExamScore(
         selectedExam,
         score
@@ -168,10 +165,7 @@ void GradingController::calculateFinalResult(
         );
     }
 
-    /*
-     * Final result can only be calculated after a score
-     * has been entered for every Exam in the Course.
-     */
+    // Every configured exam must have a score before final grading.
     if (
         enrollment
         .getExamScores()
@@ -202,19 +196,13 @@ void GradingController::calculateFinalResult(
         );
     }
 
-    /*
-     * Numeric final score calculation is delegated
-     * to the configured GradeCalculationStrategy.
-     */
+    // Numeric score calculation is delegated to the configured strategy.
     const double finalScore =
         gradingPolicy->calculateGrade(
             enrollment.getExamScores()
         );
 
-    /*
-     * Letter grade conversion is delegated
-     * to the Student's LetterGradePolicy.
-     */
+    // Letter-grade conversion is delegated to the student's policy.
     const LetterGrade letterGrade =
         student->calculateLetterGrade(
             finalScore
