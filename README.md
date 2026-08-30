@@ -593,8 +593,8 @@ GoogleTest kullanılarak otomatik testler oluşturulmuştur.
 Mevcut test paketi:
 
 ```text
-110 tests from 19 test suites
-110 passed
+111 tests from 19 test suites
+111 passed
 ```
 
 Test kapsamı içerisinde:
