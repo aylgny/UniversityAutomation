@@ -878,15 +878,31 @@ namespace api {
                             );
 
 
+                        // Threshold failure may intentionally leave
+                        // the numeric final score undefined.
+                        json finalScoreJson =
+                            nullptr;
+
+                        if (
+                            enrollment
+                            ->getFinalScore()
+                            .has_value()
+                            ) {
+
+                            finalScoreJson =
+                                enrollment
+                                ->getFinalScore()
+                                .value();
+                        }
+
+
                         sendJson(
                             response,
                             {
                                 {"success", true},
                                 {
                                     "finalScore",
-                                    enrollment
-                                        ->getFinalScore()
-                                        .value()
+                                    finalScoreJson
                                 },
                                 {
                                     "letterGrade",

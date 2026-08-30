@@ -87,6 +87,47 @@ double ThresholdStrategy::calculate(
     return otherTotal / otherCount;
 }
 
+bool ThresholdStrategy::forcesFailure(
+    const std::vector<ExamScore>& scores
+) const {
+
+    if (scores.empty()) {
+        throw std::invalid_argument(
+            "Exam scores cannot be empty."
+        );
+    }
+
+    double thresholdTotal = 0.0;
+    int thresholdCount = 0;
+
+    for (const auto& examScore : scores) {
+        const Exam* exam =
+            examScore.getExam();
+
+        for (int examId : thresholdExamIds) {
+            if (exam->getId() == examId) {
+                thresholdTotal +=
+                    examScore.getScore();
+
+                ++thresholdCount;
+
+                break;
+            }
+        }
+    }
+
+    if (thresholdCount == 0) {
+        throw std::invalid_argument(
+            "No threshold exam score was found."
+        );
+    }
+
+    const double thresholdAverage =
+        thresholdTotal / thresholdCount;
+
+    return thresholdAverage < threshold;
+}
+
 double ThresholdStrategy::getThreshold() const {
     return threshold;
 }

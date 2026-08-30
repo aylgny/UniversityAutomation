@@ -47,7 +47,7 @@ type StudentRecord = {
 
 
 type GradeResult = {
-  finalScore: number;
+  finalScore: number | null;
   letterGrade: string;
   passed: boolean;
 };
@@ -62,6 +62,18 @@ type GradeManagementProps = {
   onBack: () => void;
 };
 
+function formatFinalScore(
+  score: number | null
+): string {
+
+  if (score === null) {
+    return "—";
+  }
+
+  return Number(
+    score.toFixed(2)
+  ).toString();
+}
 
 function describeConfiguration(
   configuration:
@@ -412,9 +424,7 @@ function GradeManagement({
 
 
               // Restore an already calculated result.
-              if (
-                enrollment.finalScore !==
-                  null &&
+              if (                
                 enrollment.letterGrade !==
                   null &&
                 enrollment.passed !==
@@ -1521,7 +1531,9 @@ function GradeManagement({
 
                       <td>
                         {result
-                          ? result.finalScore
+                          ? formatFinalScore(
+                              result.finalScore
+                            )
                           : "—"}
                       </td>
 

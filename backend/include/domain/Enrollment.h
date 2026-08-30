@@ -47,6 +47,8 @@ public:
     std::optional<double> getFinalScore() const;
     void setFinalScore(double score);
 
+    void clearFinalScore();
+
     std::optional<LetterGrade> getLetterGrade() const;
     void setLetterGrade(LetterGrade grade);
 };

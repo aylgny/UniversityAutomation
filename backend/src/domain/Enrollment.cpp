@@ -120,3 +120,7 @@ void Enrollment::setLetterGrade(
 ) {
     letterGrade = grade;
 }
+
+void Enrollment::clearFinalScore() {
+    finalScore.reset();
+}

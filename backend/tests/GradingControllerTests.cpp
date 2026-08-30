@@ -265,7 +265,7 @@ TEST(
 
 TEST(
     GradingControllerTest,
-    CalculatesThresholdResultWhenThresholdIsNotPassed
+    ForcesFailureWhenThresholdIsNotPassed
 ) {
     UndergraduateStudent student(
         1,
@@ -316,6 +316,88 @@ TEST(
         enrollment
     );
 
+    EXPECT_FALSE(
+        enrollment
+        .getFinalScore()
+        .has_value()
+    );
+
+    ASSERT_TRUE(
+        enrollment
+        .getLetterGrade()
+        .has_value()
+    );
+
+    EXPECT_EQ(
+        enrollment
+        .getLetterGrade()
+        .value(),
+        LetterGrade::F
+    );
+
+    EXPECT_FALSE(
+        course.isPassed(
+            enrollment
+            .getLetterGrade()
+            .value()
+        )
+    );
+}
+
+
+TEST(
+    GradingControllerTest,
+    ThresholdExactlyEqualToLimitDoesNotForceFailure
+) {
+    UndergraduateStudent student(
+        1,
+        "Student",
+        3.20
+    );
+
+    UndergraduateCourse course(
+        101,
+        "CS302",
+        "Algorithms",
+        5
+    );
+
+    Enrollment enrollment(
+        1,
+        &student,
+        &course
+    );
+
+    GradingController controller;
+
+    controller.configureExams(
+        course,
+        2
+    );
+
+    controller.configureThreshold(
+        course,
+        StudentType::UNDERGRADUATE,
+        50.0,
+        { 1 }
+    );
+
+    controller.enterExamScore(
+        enrollment,
+        1,
+        50.0
+    );
+
+    controller.enterExamScore(
+        enrollment,
+        2,
+        85.0
+    );
+
+    controller.calculateFinalResult(
+        enrollment
+    );
+
     ASSERT_TRUE(
         enrollment
         .getFinalScore()
@@ -332,14 +414,14 @@ TEST(
         enrollment
         .getFinalScore()
         .value(),
-        40.0
+        85.0
     );
 
     EXPECT_EQ(
         enrollment
         .getLetterGrade()
         .value(),
-        LetterGrade::DD
+        LetterGrade::BA
     );
 }
 

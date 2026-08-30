@@ -21,6 +21,10 @@ public:
         const std::vector<ExamScore>& scores
     ) const override;
 
+    bool forcesFailure(
+        const std::vector<ExamScore>& scores
+    ) const override;
+
     double getThreshold() const;
 
     const std::vector<int>&

@@ -196,13 +196,50 @@ void GradingController::calculateFinalResult(
         );
     }
 
-    // Numeric score calculation is delegated to the configured strategy.
+    const GradeCalculationStrategy* strategy =
+        gradingPolicy->getStrategy();
+
+    if (
+        strategy ==
+        nullptr
+        ) {
+        throw std::logic_error(
+            "Grading strategy has not been configured."
+        );
+    }
+
+    /*
+     * If the active grading strategy defines a mandatory
+     * threshold and the student fails that threshold,
+     * the result is directly F.
+     *
+     * In this case no numeric final score is defined.
+     */
+    if (
+        strategy->forcesFailure(
+            enrollment.getExamScores()
+        )
+        ) {
+
+        enrollment.clearFinalScore();
+
+        enrollment.setLetterGrade(
+            LetterGrade::F
+        );
+
+        return;
+    }
+
+    /*
+     * If no forced failure exists, calculate the normal
+     * numeric final score and convert it to a letter grade
+     * according to the student's grading policy.
+     */
     const double finalScore =
         gradingPolicy->calculateGrade(
             enrollment.getExamScores()
         );
 
-    // Letter-grade conversion is delegated to the student's policy.
     const LetterGrade letterGrade =
         student->calculateLetterGrade(
             finalScore

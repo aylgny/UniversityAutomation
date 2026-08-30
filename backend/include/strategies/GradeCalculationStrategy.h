@@ -15,4 +15,12 @@ public:
     virtual double calculate(
         const std::vector<ExamScore>& scores
     ) const = 0;
+
+    // Indicates whether the grading rule forces the student to fail.
+    // Most strategies do not have such a rule.
+    virtual bool forcesFailure(
+        const std::vector<ExamScore>& scores
+    ) const {
+        return false;
+    }
 };
