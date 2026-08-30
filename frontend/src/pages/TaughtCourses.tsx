@@ -1,3 +1,9 @@
+/*
+ * Displays the courses taught by the current instructor.
+ * Selecting a course forwards it to the parent component
+ * for student and grading management.
+ */
+
 import type { Course } from '../types/Course';
 
 

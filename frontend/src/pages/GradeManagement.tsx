@@ -1,3 +1,9 @@
+/*
+ * Manages exam-score entry and final-grade calculation for a course.
+ * Scores may be saved partially during the semester, while final grades
+ * are calculated only for students whose required exam scores are complete.
+ */
+
 import {
   useEffect,
   useMemo,
@@ -127,7 +133,11 @@ function GradeManagement({
         string[]
       >
     >({});
-
+  /*
+  * Snapshot of scores currently stored in the backend.
+  * It is used to avoid resending unchanged scores, because updating
+  * a score would invalidate that student's previously calculated result.
+  */
   const [
   persistedScores,
   setPersistedScores,
@@ -252,7 +262,10 @@ function GradeManagement({
     );
   };
 
-
+  /*
+  * Score entry and final calculation require grading configuration
+  * for every student group currently enrolled in the course.
+  */
   const hasAnyUnconfiguredStudent =
     students.some(
       (student) =>
@@ -433,7 +446,10 @@ function GradeManagement({
             setScores(
               initialScores
             );
-
+            /*
+            * Preserve the initially loaded values as the persisted snapshot
+            * used later to detect actual score changes.
+            */
             setPersistedScores(
               Object.fromEntries(
                 Object.entries(
@@ -526,8 +542,8 @@ function GradeManagement({
 
 
     /*
-     * A changed score may invalidate a previously
-     * calculated final result.
+     * A changed score invalidates only this student's
+     * previously displayed calculated result.
      */
     setResults(
       (
@@ -704,7 +720,10 @@ function GradeManagement({
               );
 
 
-            // Empty values are ignored.
+            /*
+            * Empty values are ignored so exam scores can be saved
+            * gradually as exams take place during the semester.
+            */
             if (
               numericScore ===
               null
@@ -726,7 +745,11 @@ function GradeManagement({
                 : null;
 
 
-            // Unchanged scores are not sent again.
+            /*
+            * Do not resend unchanged scores.
+            * Sending them again would unnecessarily invalidate
+            * an already calculated result for that enrollment.
+            */
             if (
               persistedNumericScore !==
                 null &&
@@ -764,7 +787,10 @@ function GradeManagement({
 
           return;
         }
-
+        /*
+        * After a successful save, the current UI values become
+        * the new backend snapshot for future change detection.
+        */
         setPersistedScores(
           Object.fromEntries(
             Object.entries(
@@ -1115,7 +1141,11 @@ function GradeManagement({
   // =====================================================
   // COURSE CHANGE
   // =====================================================
-
+ 
+  /*
+  * Clear course-specific UI state before loading
+  * the newly selected course.
+  */
   const handleCourseChange = (
     courseId: number
   ) => {
